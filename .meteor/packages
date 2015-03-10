@@ -8,5 +8,7 @@ meteor-platform
 autopublish
 insecure
 less
-mizzao:bootstrap-3
 natestrauser:font-awesome
+d3js:d3
+twbs:bootstrap-noglyph
+iron:router

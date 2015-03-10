@@ -51,7 +51,7 @@ Template.iotDeviceNav.helpers({
 
 var drawArcs = function(arcs) {
   var MAXARCS = 8;
-/*  var arcs = [
+  var arcs = [
     { 
       name   : 'updated'
             , raw    : 1
@@ -78,14 +78,11 @@ var drawArcs = function(arcs) {
             , index  : 0.70
     }
   ];
-  */
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
 
   chart = document.getElementById("chart");
   div = document.createElement('div');
   div.setAttribute('id', 'labels');
-  div.setAttribute('style',
-                   'position: absolute; top: 52px; left: 178px; width: 200px; height: 240px; text-align: right; font-weight: normal;');
   labels = '';
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
@@ -110,8 +107,8 @@ var drawArcs = function(arcs) {
   arcs = arcz;
 
   console.log('draw arcs:',arcs);
-  div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 190px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
-chart.appendChild(div);
+  div.innerHTML = '<div class="labels">' + labels + '</div>';
+  chart.appendChild(div);
 
 // Based on http://vis.stanford.edu/protovis/ex/chart.html
 // with an assist from arctween.js

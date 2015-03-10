@@ -31,7 +31,7 @@
 </template>
 
 <template name='iotDevice'>
-  <div class="container marketing">
+  <div class="container">
     <hr class="featurette-divider">
     <div class="row">
       <div class="col-md-2">
@@ -42,29 +42,16 @@
         <div id="chart">
 
           <div id="controls">
-            <div style="width: 155px; height: 155px; position: relative; left: 62px; overflow:hidden;">
-              <img class="actor-big" id="actor-big-icon" style="background-color:{{device.statusColor}};" src="images/devices/{{device.icon}}">
+            <div id="deviceIcon">
+              <img class="actor-big" style="background-color:{{device.statusColor}};" src="images/devices/{{device.icon}}">
             </div>
-            <div id="toPopover" class="big-instructions">
-              <span class="actor-name" id="actor-big-name" style="color:{{device.statusColor}};">{{device.name}}({{device.location}})</span>
-            </div>
-          </div>
-
-          <div id="labels" style="position: absolute; top: 52px; left: 178px; width: 200px; height: 240px; text-align: right; font-weight: normal;">
-            <div class="labels" style="white-space: nowrap; width: 190px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">
-              {{labels}}
-              <!--
-              {{#each labels}}
-                {{label}}
-                <br>
-              {{/each}}
-              -->
+            <div id="toPopover">
+              <span class="actor-name" style="color:{{device.statusColor}};">{{device.name}}({{device.location}})</span>
             </div>
           </div>
 
         </div>
       </div>
-
     </div>
   </div>
 </template>

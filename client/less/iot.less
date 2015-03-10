@@ -1,76 +1,33 @@
 body {
-  padding-bottom: 40px;
-  color: #5a5a5a;
-  background: #000 !important; 
+	padding-bottom: 40px;
+	color: #5a5a5a;
+	background: #000 !important; 
 }
 
 .marketing {
-  text-align: center;
+	text-align: center;
 
-  .col-md-4 {
-    margin-bottom: 20px;
-  }
+	.col-md-4 {
+		margin-bottom: 20px;
+	}
 
-  h4 {
-    font-weight: normal;
-  }
+	h4 {
+		font-weight: normal;
+	}
 }
 
 .featurette-divider {
-  margin: 80px 0; 
+	margin: 80px 0; 
 }
 
 #chart {
-  position: relative;
-  background-color: #000;
-  background-image: url(images/thing.bkg.svg);
-  width: 802px;
-  height: 802px;
+	position: relative;
+	background-color: #000;
+	background-image: url(images/thing.bkg.svg);
+	width: 802px;
+	height: 802px;
 
-  div {
-    position: absolute;
-    right: 4px;
-    bottom: 4px;
-    color: #ddd;
-    font-size: 11px;
-    font-family: "Roadgeek 2005 Series D";
-
-    .labels {
-        position: relative;
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 12px;
-        line-height: 41px;
-        font-weight: normal;
-        color: #fff;
-        padding-right: 5px;
-    }
-    .label {
-        position: relative;
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 12px;
-        font-weight: normal;
-        color: #fff;
-        height: 41px;
-    }
-    .big-instructions {
-        position: relative;
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 24px;
-        color: #fff;
-        font-weight: normal;
-        line-height: 27px;
-        margin-top: 2px;
-        margin-left: 6px;
-        padding-top: 3px;
-    }
- }
-
- a {
-   color: #fff;
- }
-}
-
-#controls {
+	#controls {
         position: absolute;
         top: 189px;
         left: 95px;
@@ -78,37 +35,86 @@ body {
         height: 300px;
         text-align: center;
         overflow: hidden;
-}
 
-#labels {
+		#deviceIcon {
+			width: 155px; 
+			height: 155px; 
+			position: relative; 
+			left: 62px; 
+			overflow:hidden;
+
+			.actor-big { 
+				width: 160px; 
+				height: 160px; 
+				margin-bottom: 8px; 
+				background-color: #fff; 
+				overflow: hidden;
+			}
+		}
+
+		#toPopover { 
+			cursor: pointer; 
+        	position: relative;
+        	font-family: "Roadgeek 2005 Series D";
+        	font-size: 24px;
+        	color: #fff;
+        	font-weight: normal;
+        	line-height: 27px;
+        	margin-top: 2px;
+        	margin-left: 6px;
+        	padding-top: 3px;
+
+			.actor-name { 
+				width: 100px; 
+				text-align: center; 
+				font-weight: normal; 
+				color: #fff; 
+			}
+		}
+	}
+
+	#labels {
         position: absolute;
         top: 52px;
+		right: 4px;
+		bottom: 4px;
         left: 178px;
         width: 200px;
+		height: 240px; 
+		color: #ddd;
         text-align: right;
         font-weight: normal;
+		font-size: 11px;
+		font-family: "Roadgeek 2005 Series D";
+
+		.labels {
+			position: relative;
+			font-family: "Roadgeek 2005 Series D";
+			font-size: 12px;
+			line-height: 41px;
+			font-weight: normal;
+			color: #fff;
+			padding-right: 5px;
+
+			white-space: nowrap; 
+			width: 190px; 
+			overflow: hidden;
+			-o-text-overflow: 
+			ellipsis; 
+			text-overflow: ellipsis; 
+		}
+
+	}
+
+	#arcCanvas {
+		g text {
+        	font-family: "Roadgeek 2005 Series D";
+        	font-size: 12px;
+        	font-weight: normal;
+		}
+	}
 }
-#readings {
-        position: absolute;
-        top: 68px;
-        left: 392px;
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 12px;
-        font-weight: normal;
-        text-align: left;
-        color: #fff;
-}
 
-g text {
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 12px;
-        font-weight: normal;
-}
 
-#toPopover  { cursor: pointer; }
-.big-instructions { font-size: 16pt; margin-top: 42px; }
 
-div.actor { text-align: center; float: left;  width: 50px; height: 70px; overflow: hidden;}
-img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-color: #fff; overflow: hidden; }
 
-.actor-name         { width: 100px; text-align: center; font-weight: normal; color: #fff; }
