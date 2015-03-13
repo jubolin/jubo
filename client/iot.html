@@ -1,23 +1,14 @@
 <template name='iot'>
   {{> iotDeviceNav}}
+  {{> iotFooter}}
 </template>
-
-<!--
-<template name='iotLayout'>
-  <iotnav>
-    {{> yield "iotnav"}}
-  </iotnav>
-
-  <device>
-    {{> yield}}
-  </device>
-</template>
--->
 
 <template name='iotDeviceNav'>
-    <div class="container marketing">
+    <div class="container devnav">
       <div class="row">
-        <h2>The thing system</h2>
+        <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
+      </div>
+      <div class="row" id="devices">
         {{#each devices}}
           <div class="col-xs-3 col-sm-2 col-md-1">
             <a href="/device/{{devid}}">
@@ -30,12 +21,22 @@
   </div>
 </template>
 
+<template name='iotFooter'>
+  <div class="container">
+    <div class="row site-footer">
+      <a href="https://github.com/jubolin/jubo-iot">
+        <p class="text-center"> <strong>Source in GitHub</strong></p>
+      </a>
+    </div>
+  </div>
+</template>
+
 <template name='iotDevice'>
   <div class="container">
     <hr class="featurette-divider">
     <div class="row">
       <div class="col-md-2">
-        <a href="/"> <i class="fa fa-tree fa-2x"></i></a>
+        <a href="/"> <i class="fa fa-leaf fa-2x logo"></i></a>
       </div>
 
       <div class="col-md-offset-2">
