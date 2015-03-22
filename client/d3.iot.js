@@ -66,4 +66,6 @@ d3.ratio.clip2bars = function(v, min, max) {
 };
 
 d3.ratio.translate = function(name,value) {
+  return Random.fraction();
 };
+

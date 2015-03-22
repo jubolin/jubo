@@ -1,3 +1,9 @@
+Template.iotDeviceNav.helpers({
+  devices: function() {
+    return judevs.find();
+  }
+});
+
 Template.iotDevice.helpers({
   device: function() {
     return judevs.findOne({"devid":Session.get('iotDeviceID')});
@@ -43,41 +49,8 @@ Template.iotDevice.rendered = function() {
   drawArcs(arcs);
 }
 
-Template.iotDeviceNav.helpers({
-  devices: function() {
-    return judevs.find();
-  }
-});
-
 var drawArcs = function(arcs) {
   var MAXARCS = 8;
-  var arcs = [
-    { 
-      name   : 'updated'
-            , raw    : 1
-            , label  : 'TIME'
-            , cooked : d3.timestamp.ago(1.1)
-            , ratio  : 0.20
-            , index  : 0.70
-    },
-    {
-      name   : 'status', 
-      raw    : 'ondadfdadfadfdafdadad', 
-      color  : d3.rgb('#00ba00'), 
-      label  : 'STATUS', 
-      cooked : 'on', 
-      ratio  : 0.10, 
-      index  : 0.60         
-    },
-    { 
-      name   : 'updated'
-            , raw    : 1
-            , label  : 'COLOR'
-            , cooked : '白色' 
-            , ratio  : 0.30
-            , index  : 0.70
-    }
-  ];
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
 
   chart = document.getElementById("chart");
