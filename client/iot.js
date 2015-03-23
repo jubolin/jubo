@@ -51,7 +51,7 @@ Template.iotDeviceNav.helpers({
 
 var drawArcs = function(arcs) {
   var MAXARCS = 8;
-  var arcs = [
+/*  var arcs = [
     { 
       name   : 'updated'
             , raw    : 1
@@ -78,6 +78,7 @@ var drawArcs = function(arcs) {
             , index  : 0.70
     }
   ];
+  */
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
 
   chart = document.getElementById("chart");
