@@ -12,9 +12,10 @@ device: {
 	"connector": "ddp",			// ddp、alljoyn、mqtt
 	"location": "home.kitchen",
 	"status": "on",				// on、off
+	"startTime": "doom",		// doom(device is off) or start time
 	"statusColor": "#00ba00",
 	"icon": "lighting-bulb.svg",
-	"router": "jubo@bulbControl",
+	"routeTemplate": "jubo@bulbControl", // the device's exclusive 
 }
 ```
 
