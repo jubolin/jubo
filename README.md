@@ -4,6 +4,7 @@ jubo-iot
 基于Meteor的IoT网关，支持Alljoyn和DDP协议。
 
 ### 设备定义
+```
 device: {
 	"name": "xxx",
 	"type": "bulb", 	      	// bulb、media、sensor
@@ -15,5 +16,5 @@ device: {
 	"icon": "lighting-bulb.svg",
 	"router": "jubo@bulbControl",
 }
-
+```
 
