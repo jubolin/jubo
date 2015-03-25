@@ -18,16 +18,16 @@ Template.iotDevice.rendered = function() {
   device = judevs.findOne({'devid':devid});
   console.log('device:',device);
 
-  if(device.status === 'stop') 
+  if(device.status === 'off') 
     return;
 
   now = new Date().getTime();
-  delta = d3.ratio.clip2bars(now - (new Date(device.start).getTime()), 0, 86400 * 1000);
+  delta = d3.ratio.clip2bars(now - (new Date(device.startTime).getTime()), 0, 86400 * 1000);
   // running time
   arcs.push({ 
     name : 'start', 
     raw : device.start, 
-    label : 'TIME', 
+    label : '运行时间', 
     cooked : d3.timestamp.ago(device.start), 
     ratio : delta, 
     index : 0.70
