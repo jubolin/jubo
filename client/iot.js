@@ -28,7 +28,7 @@ Template.iotDevice.rendered = function() {
     name : 'start', 
     raw : device.start, 
     label : '运行时间', 
-    cooked : d3.timestamp.ago(device.start), 
+    cooked : d3.timestamp.ago(device.startTime), 
     ratio : delta, 
     index : 0.70
   });
