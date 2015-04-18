@@ -6,8 +6,8 @@
 IoT = {};
 IoT.Home = {};
 IoT.Device = {};
-IoT.Device.devices = judevs; 
-IoT.Device.properties = juhome; 
+IoT.Device.devices = judevs;
+IoT.Device.properties = juhome;
 
 IoT.Device.get = function(devid) {
   return IoT.Device.devices.findOne({'devid':devid});
@@ -35,6 +35,16 @@ IoT.uuid = function() {
   return Random.id();
 }
 
+IoT.Home.follow = function(foregoer,follower) {
+  var handler = IoT.Device.propeties.findOne('pid': foregoer.pid).observeChanges({
+    changed: function(id,value) {
+      if(value === foregoer.value) {
+        IoT.Device.propeties.update({'pid':follower.pid},{$set: {'value': follower.value}});
+      }
+    }
+  })
+}
+
 Meteor.methods({
   add: function(device) {
     var devid = IoT.uuid();
@@ -50,7 +60,10 @@ Meteor.methods({
       if(err) return cb(err);
 
       _.each(device.properties,function(property) {
+        property.pid = IoT.uuid();
         property.devid = devid;
+        property.timestamp = new Date().getTime();
+
         IoT.Device.properties.insert(property,function(err,result) {
           if(err) return cb(err);
           console.log('add property:\n', property);
@@ -62,7 +75,7 @@ Meteor.methods({
       var self = this;
       var handler = IoT.Device.properties.find({'devid':devid},{fields: {'label': 0}}).observe({
         added: function(doc) {
-          self.added('jubo_iot_properties',doc._id,doc); 
+          self.added('jubo_iot_properties',doc._id,doc);
         },
 
         changed: function(doc) {
@@ -76,9 +89,44 @@ Meteor.methods({
     return devid;
   },
 
+  setproperty: function(property) {
+    var self = this;
+    var timestamp = new Date().getTime();
+    var foregoers = IoT.Device.propeties.find('timestamp': (timestamp - 30*1000));
+    var behavior = IoT.Device.propeties.findOne({'pid': property.pid});
+    var noRelation = function(relationship,index,array) {
+      if(relationship.friend === foregoer._id) {
+        relationship.friendship--;
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    var follow = function(foregoer,follower) {
+      var handler = foregoer.observeChanges({
+        changed: function(id,value) {
+          if(value === foregoer.value) {
+            IoT.Device.propeties.update(
+              {'id':follower.id, "friends.friend": foregoer.id},
+              {$set: {'value': follower.value},
+               $inc: {"relationships.$.friendship": 1});
+          }
+        }
+      });
+    };
+
+    IoT.Device.propeties.update({'_id':behavior._id},{$set:{'value': value,'timestamp': timestamp}});
+    foregoers.forEach(function(foregoer)  {
+      if(behavior.relationships.every(noRelationship)) {
+        follow(foregoer,behavior);
+      }
+    });
+  },
+
   feedback: function(err,property) {
     if(err && property) {
-      IoT.Device.properties.insert(property);
+      IoT.Device.properties.update({'devid': property.devid},{$set:{'value': value}});
     }
   },
 
@@ -107,7 +155,7 @@ Meteor.methods({
   },
 
   requestAuthorization: function(app,locations) {
-    console.log('Application ' + app + 'request authorization ' + locations); 
+    console.log('Application ' + app + 'request authorization ' + locations);
   }
 });
 
