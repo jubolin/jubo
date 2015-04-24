@@ -26,7 +26,10 @@ property: {
   "service": "lighting",
   "property": "lightState",
   "label": "开关",
-  "value": "on"
+  "value": "on",
+  
+  "friends": [{"friend": "id", "friendship": "1"}, ...],
+  "rules": [{"id": "id", "value": "xxx-xxxx"}]
 }
 ```
 

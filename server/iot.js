@@ -92,10 +92,10 @@ Meteor.methods({
   setproperty: function(property) {
     var self = this;
     var timestamp = new Date().getTime();
-    var foregoers = IoT.Device.propeties.find('timestamp': (timestamp - 30*1000));
-    var behavior = IoT.Device.propeties.findOne({'pid': property.pid});
+    var friends = IoT.Device.propeties.find('timestamp': (timestamp - 30*1000));
+    var me = IoT.Device.propeties.findOne({'pid': property.pid});
     var noRelation = function(relationship,index,array) {
-      if(relationship.friend === foregoer._id) {
+      if(relationship.friend === friend._id) {
         relationship.friendship--;
         return false;
       } else {
@@ -103,23 +103,33 @@ Meteor.methods({
       }
     };
 
-    var follow = function(foregoer,follower) {
-      var handler = foregoer.observeChanges({
+    // gather survival rules
+    var gatherRules = function(instance) {
+      _.each(instance.rules,function(rule) {
+        var property = IoT.Home.properties.findOne({'pid': rule.pid});
+        IoT.Home.properties.update({'pid': rule.pid},{$set: {'value': property.value}});
+      });
+
+    };
+
+    var follow = function(friend,me) {
+      var handler = friend.observeChanges({
         changed: function(id,value) {
-          if(value === foregoer.value) {
+          if(survived(id)) { 
             IoT.Device.propeties.update(
-              {'id':follower.id, "friends.friend": foregoer.id},
-              {$set: {'value': follower.value},
-               $inc: {"relationships.$.friendship": 1});
+              {'_id': id, "friends.friend": friend.pid},
+              {$inc: {"friends.$.friendship": 1}
+              });
           }
         }
       });
     };
 
-    IoT.Device.propeties.update({'_id':behavior._id},{$set:{'value': value,'timestamp': timestamp}});
-    foregoers.forEach(function(foregoer)  {
-      if(behavior.relationships.every(noRelationship)) {
-        follow(foregoer,behavior);
+    IoT.Device.propeties.update({'_id':me._id},{$set:{'value': value,'timestamp': timestamp}});
+    gatherRules(me);
+    friends.forEach(function(friend)  {
+      if(me.friends.every(noRelation)) {
+        follow(friend,me);
       }
     });
   },
