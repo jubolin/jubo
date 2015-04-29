@@ -9,6 +9,14 @@ IoT.Device = {};
 IoT.Device.devices = judevs;
 IoT.Device.properties = juhome;
 
+Meteor.publish("iot-devices",function(){
+  return IoT.Device.devices.find();
+});
+
+Meteor.publish("iot-properties",function(){
+  return IoT.Device.properties.find();
+});
+
 IoT.Device.get = function(devid) {
   return IoT.Device.devices.findOne({'devid':devid});
 };
@@ -36,10 +44,10 @@ IoT.uuid = function() {
 }
 
 IoT.Home.follow = function(foregoer,follower) {
-  var handler = IoT.Device.propeties.findOne('pid': foregoer.pid).observeChanges({
+  var handler = IoT.Device.properties.findOne({'pid': foregoer.pid}).observeChanges({
     changed: function(id,value) {
       if(value === foregoer.value) {
-        IoT.Device.propeties.update({'pid':follower.pid},{$set: {'value': follower.value}});
+        IoT.Device.properties.update({'pid':follower.pid},{$set: {'value': follower.value}});
       }
     }
   })
@@ -63,6 +71,7 @@ Meteor.methods({
         property.pid = IoT.uuid();
         property.devid = devid;
         property.timestamp = new Date().getTime();
+        property.friends = [];
 
         IoT.Device.properties.insert(property,function(err,result) {
           if(err) return cb(err);
@@ -92,8 +101,13 @@ Meteor.methods({
   setproperty: function(property) {
     var self = this;
     var timestamp = new Date().getTime();
-    var friends = IoT.Device.propeties.find('timestamp': (timestamp - 30*1000));
-    var me = IoT.Device.propeties.findOne({'pid': property.pid});
+    var friends = IoT.Device.properties.find(
+      { $and: [{'timestamp': {$gt: (timestamp - 30*1000)}},{'timestamp': {$lt: timestamp}}]});
+
+    var me = IoT.Device.properties.findOne(
+      {'devid': property.devid,
+        'service': property.service,'property': property.property});
+
     var noRelation = function(relationship,index,array) {
       if(relationship.friend === friend._id) {
         relationship.friendship--;
@@ -106,29 +120,44 @@ Meteor.methods({
     // gather survival rules
     var gatherRules = function(instance) {
       _.each(instance.rules,function(rule) {
-        var property = IoT.Home.properties.findOne({'pid': rule.pid});
-        IoT.Home.properties.update({'pid': rule.pid},{$set: {'value': property.value}});
+        var property = IoT.Device.properties.findOne({'pid': rule.pid});
+        console.log('gather rule:',rule,'value:',property.value);
+        IoT.Device.properties.update(
+          {'pid': instance.pid,"rule.pid": rule.pid},
+          {$set: {'rule.$.value': property.value}});
       });
 
     };
 
+    var survived = function(id) {
+      return true;
+    };
+
     var follow = function(friend,me) {
-      var handler = friend.observeChanges({
+      IoT.Device.properties.update(
+        {'_id': me._id},{$addToSet: {friends: {'friend': friend.pid, 'friendship': 0}}});
+
+      var handler = IoT.Device.properties.find(
+        {'pid': friend.pid}).observeChanges({
         changed: function(id,value) {
           if(survived(id)) { 
-            IoT.Device.propeties.update(
-              {'_id': id, "friends.friend": friend.pid},
-              {$inc: {"friends.$.friendship": 1}
-              });
+            console.log('friend\'s state changed',friend);
+            IoT.Device.properties.update(
+              {'_id': me._id, "friends.friend": friend.pid},
+              {$inc: {"friends.$.friendship": 1}});
           }
         }
       });
     };
 
-    IoT.Device.propeties.update({'_id':me._id},{$set:{'value': value,'timestamp': timestamp}});
+    IoT.Device.properties.update(
+      {'_id':me._id},
+      {$set:{'value': property.value,'timestamp': timestamp}});
+
     gatherRules(me);
     friends.forEach(function(friend)  {
       if(me.friends.every(noRelation)) {
+        console.log('---------',me,' follow ',friend);
         follow(friend,me);
       }
     });

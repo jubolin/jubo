@@ -1,3 +1,6 @@
+Meteor.subscribe("iot-devices");
+Meteor.subscribe("iot-properties");
+
 Template.iotDeviceNav.helpers({
   devices: function() {
     return judevs.find();
