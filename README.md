@@ -23,13 +23,24 @@ device: {
 ```
 property: {
   "devid": "xxxx-xxx-xxxx",
+  'pid': 'xxx-xxx-xxxx',
   "service": "lighting",
   "property": "lightState",
-  "label": "开关",
   "value": "on",
   
+  "label": "开关",
+  'role': 'founder' // founder,citizen
+  
   "friends": [{"friend": "id", "friendship": "1"}, ...],
-  "rules": [{"id": "id", "value": "xxx-xxxx"}]
+  "rules": [{"pid": "id", "value": "xxx-xxxx"}]
 }
+
+relationship: {
+  "me": "pid",
+  "friend": "pid",
+  "friendship": "1",
+  "tie": 'property.value'  
+}
+
 ```
 

@@ -6,6 +6,7 @@
 IoT = {};
 IoT.Home = {};
 IoT.Device = {};
+IoT.Home.relations = jurelations;
 IoT.Device.devices = judevs;
 IoT.Device.properties = juhome;
 
@@ -71,7 +72,8 @@ Meteor.methods({
         property.pid = IoT.uuid();
         property.devid = devid;
         property.timestamp = new Date().getTime();
-        property.friends = [];
+        //property.friends = [];
+        property.role = 'founder';
 
         IoT.Device.properties.insert(property,function(err,result) {
           if(err) return cb(err);
@@ -101,24 +103,22 @@ Meteor.methods({
   setproperty: function(property) {
     var self = this;
     var timestamp = new Date().getTime();
-    var friends = IoT.Device.properties.find(
-      { $and: [{'timestamp': {$gt: (timestamp - 30*1000)}},{'timestamp': {$lt: timestamp}}]});
+    var friends = IoT.Device.properties.find({ 
+      $and: [
+        {'timestamp': {$gt: (timestamp - 30*1000)}},
+        {'timestamp': {$lt: timestamp}},
+        {'role': {$ne: 'founder'}}
+      ]
+    });
 
-    var me = IoT.Device.properties.findOne(
-      {'devid': property.devid,
-        'service': property.service,'property': property.property});
-
-    var noRelation = function(relationship,index,array) {
-      if(relationship.friend === friend._id) {
-        relationship.friendship--;
-        return false;
-      } else {
-        return true;
-      }
-    };
+    var me = IoT.Device.properties.findOne({
+      'devid': property.devid,
+      'service': property.service,
+      'property': property.property
+    });
 
     // gather survival rules
-    var gatherRules = function(instance) {
+/*    var gatherRules = function(instance) {
       _.each(instance.rules,function(rule) {
         var property = IoT.Device.properties.findOne({'pid': rule.pid});
         console.log('gather rule:',rule,'value:',property.value);
@@ -128,23 +128,42 @@ Meteor.methods({
       });
 
     };
+    */
 
-    var survived = function(id) {
+    var survived = function(rules) {
       return true;
     };
 
     var follow = function(friend,me) {
-      IoT.Device.properties.update(
-        {'_id': me._id},{$addToSet: {friends: {'friend': friend.pid, 'friendship': 0}}});
+      // gather survival rules
+      _.each(me.rules, function(rule) {
+        var property = IoT.Device.properties.find({'pid': rule.pid});
+        console.log('gather rule:',rule,'value:',property.value);
+        rule.value = property.value;
+      });
 
-      var handler = IoT.Device.properties.find(
-        {'pid': friend.pid}).observeChanges({
-        changed: function(id,value) {
-          if(survived(id)) { 
+      IoT.Home.relations.insert({
+        'me': me.pid, 
+        'friend': friend.pid,
+        'friendship': 0,
+        'tie': friend.value
+      });
+
+      IoT.Device.properties.update(
+        {'_id': me._id},
+        {$set: {'rules': me.rules}}
+      );
+
+      var handler = IoT.Device.properties.find({'pid': friend.pid}).observeChanges({
+        changed: function(id,property) {
+
+          var relation = IoT.Home.relations.findOne({'me': me.pid, 'friend': friend.pid});
+          if(property.value === relation.tie) { 
             console.log('friend\'s state changed',friend);
-            IoT.Device.properties.update(
-              {'_id': me._id, "friends.friend": friend.pid},
-              {$inc: {"friends.$.friendship": 1}});
+            IoT.Home.relations.update(
+              {'_id':relation._id},
+              {$inc: {'friendship': 1}}
+            );
           }
         }
       });
@@ -152,12 +171,13 @@ Meteor.methods({
 
     IoT.Device.properties.update(
       {'_id':me._id},
-      {$set:{'value': property.value,'timestamp': timestamp}});
+      {$set:{'value': property.value,'timestamp': timestamp, 'role': 'citizen'}});
 
-    gatherRules(me);
     friends.forEach(function(friend)  {
-      if(me.friends.every(noRelation)) {
-        console.log('---------',me,' follow ',friend);
+      relation = IoT.Home.relations.find({'me': me.pid,'friend': friend.pid});
+      console.log('count:',relation.count());
+      if(relation.count() === 0) {
+        console.log(me,' -----follow--- ',friend);
         follow(friend,me);
       }
     });
