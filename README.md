@@ -18,6 +18,18 @@ Juot希望通过连接家里的一切设备，赋予设备对家更多的感知�
 * 简单易用，不需要设置规则，只需要纠正其学习过程的错误 
 
 ## 安装运行
+
+**运行damon**
+```
+git clone https://github.com/jubolin/juot.git
+cd juot
+git checkout daemon
+meteor 
+```
+
+打开浏览器访问http://localhost:3000就可以看到daemon了。
+
+**运行juot**
 ```
 git clone https://github.com/jubolin/juot.git
 cd juot
