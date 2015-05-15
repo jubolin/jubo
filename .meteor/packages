@@ -5,12 +5,10 @@
 # but you can also edit it by hand.
 
 meteor-platform
-insecure
 less
 natestrauser:font-awesome
 d3js:d3
 twbs:bootstrap-noglyph
 iron:router
 random
-xolvio:cucumber
 infinitedg:winston

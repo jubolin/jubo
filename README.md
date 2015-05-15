@@ -1,46 +1,40 @@
-jubo-iot
+Juot
 ====
 
-基于Meteor的IoT网关，支持Alljoyn和DDP协议。
+数据驱动，具有学习能力的智能家居网关。
 
-### 设备定义
+
+## 愿景
+我们认为使用手机通过网络开关设备不是智能，那只是远程控制。 而在物联网(IoT)和智能家居的目标中，远程控制只是第一步。
+
+Juot希望通过连接家里的一切设备，赋予设备对家更多的感知，构建一个智能的家庭网络，真正的融入家庭生活。
+
+智能、舒适、安全的家，这就是我们的目标。
+
+## 特性
+* 数据驱动，整个系统的运转由设备数据驱动 
+* 自我学习，学习用户的行为，并进化为习惯
+* 控制APP化，每个设备都可以有自己独立的控制APP  
+* 简单易用，不需要设置规则，只需要纠正其学习过程的错误 
+
+## 安装运行
 ```
-device: {
-  "about": {"name": "xxx"},
-  "type": "bulb", 	      	// bulb、media、sensor
-  "devid": "xxxx-xxx-xxxx", 	// generate by gateway
-  "connector": "ddp",			// ddp、alljoyn、mqtt
-  "location": "home.kitchen",
-  "status": "on",				// on、off
-  "startTime": "doom",		// doom(device is off) or start time
-  "statusColor": "#00ba00",
-  "icon": "lighting-bulb.svg",
-  "controller": "jubo@bulbControl", // the device's exclusive 
-}
+git clone https://github.com/jubolin/juot.git
+cd juot
+meteor 
 ```
 
-## 属性定义
-```
-property: {
-  "devid": "xxxx-xxx-xxxx",
-  'pid': 'xxx-xxx-xxxx',
-  "service": "lighting",
-  "property": "lightState",
-  "value": "on",
-  
-  "label": "开关",
-  'role': 'founder' // founder,citizen
-  
-  "friends": [{"friend": "id", "friendship": "1"}, ...],
-  "rules": [{"pid": "id", "value": "xxx-xxxx"}]
-}
+打开浏览器访问http://localhost:3000
 
-relationship: {
-  "me": "pid",
-  "friend": "pid",
-  "friendship": "1",
-  "tie": 'property.value'  
-}
 
-```
+## 开发资源
+
+Wiki: https://github.com/jubolin/juot/wiki
+
+Juot是在Meteor(https://www.meteor.com) 的基础上开发的，Meteor的开发资源都可以应用在Juot上。
+
+## 联系方式
+Email: jubolin@126.com
+
+
 
