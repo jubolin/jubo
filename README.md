@@ -19,15 +19,15 @@ Juot希望通过连接家里的一切设备，赋予设备对家更多的感知�
 
 ## 安装运行
 
-**运行damon**
+**运行demo**
 ```
 git clone https://github.com/jubolin/juot.git
 cd juot
-git checkout daemon
+git checkout demo
 meteor 
 ```
 
-打开浏览器访问http://localhost:3000就可以看到daemon了。
+打开浏览器访问http://localhost:3000就可以看到demo了。
 
 **运行juot**
 ```
