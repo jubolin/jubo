@@ -13,7 +13,7 @@
           <div class="col-xs-3 col-sm-2 col-md-1">
             <a href="/device/{{devid}}">
               <img src="images/devices/{{icon}}" style="background-color: {{statusColor}};">
-              <h4>{{name}}</h4>
+              <h4>{{about.name}}</h4>
             </a>
           </div>
         {{/each}}
@@ -47,7 +47,7 @@
               <img class="actor-big" style="background-color:{{device.statusColor}};" src="images/devices/{{device.icon}}">
             </div>
             <div id="toPopover">
-              <span class="actor-name" style="color:{{device.statusColor}};">{{device.name}}({{device.location}})</span>
+              <span class="actor-name" style="color:{{device.statusColor}};">{{device.about.name}}({{device.about.location}})</span>
             </div>
           </div>
 
