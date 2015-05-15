@@ -168,7 +168,7 @@ Meteor.methods({
       if(relation === undefined) {
         follow(friend,me);
       } else {
-        if((relation.friendship - 1 ) <== 0) {
+        if((relation.friendship - 1 ) <= 0) {
           // remove follower
           IoT.Logger.log('info','remove follower',relation);
           IoT.Home.followers[relation._id].stop();
