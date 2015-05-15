@@ -15,6 +15,107 @@ IoT.Device.properties = juhome;
 
 IoT.Logger = Winston; 
 
+Meteor.startup(function() {
+  var now = new Date().getTime(); 
+
+  judevs.remove({});
+  judevs.insert({ 
+    'devid' : 'P28nMQedRNHmSiPAN', 
+    'about': {
+      'name': "客厅灯",
+      'type' : 'bulb', 
+      'location' : 'home.parlour', 
+    },
+    "connector" : "alljoyn", 
+    "status" : "on", 
+    "startTime": now, 
+    "statusColor" : "#008000", 
+    "icon" : "lighting-bulb.svg" ,
+    'controller': 'default',
+  });
+
+  judevs.insert({ 
+    'devid' : 'P28nMQedRNHmSiPAO', 
+    'about': {
+      'name': "卧室灯",
+      'type' : 'bulb', 
+      'location' : 'home.bedroom', 
+    },
+    "connector" : "ddp", 
+    "status" : "off", 
+    "startTime": 'doom', 
+    "statusColor" : "#cccccc", 
+    "icon" : "lighting-bulb.svg",
+    'controller': 'default',
+  });
+
+  judevs.insert({ 
+    'devid' : 'P28nMQedRNHmSiPAP', 
+    'about': {
+      'name': "电视",
+      'type' : 'media', 
+      'location' : 'home.parlour', 
+    },
+    "connector" : "alljoyn", 
+    "status" : "on", 
+    "startTime": now, 
+    "statusColor" : "#008000", 
+    "icon" : "media-video.svg", 
+    'controller': 'default',
+  });
+
+  judevs.insert({ 
+    'devid' : 'P28nMQedRNHmSiPAQ', 
+    'about': {
+      'name': "门铃",
+      'type' : 'sensor', 
+      'location' : 'home.parlour', 
+    },
+    "connector" : "alljoyn", 
+    "status" : "on", 
+    "startTime": now, 
+    "statusColor" : "#008000", 
+    "icon" : "sensor-door.svg",
+    'controller': 'default',
+  });
+
+  judevs.insert({ 
+    'devid' : 'P28nMQedRNHmSiPAC', 
+    'about': {
+      'name': "插座",
+      'type' : 'switch', 
+      'location' : 'home.parlour', 
+    },
+    "connector" : "ddp", 
+    "status" : "off", 
+    "startTime": 'doom', 
+    "statusColor" : "#cccccc", 
+    "icon" : "switch-onoff.svg", 
+    'controller': 'default',
+  });
+
+  juhome.remove({});
+  juhome.insert({ 
+    "devid" : "P28nMQedRNHmSiPAN",
+    'pid': 'A28nMQedRNHmSiPAN',
+    "property" : "brightness",
+    "service" : "lighting",
+    "value" : "100",
+    "label" : "亮度",
+    'role': 'citizen',
+  });
+
+  juhome.insert({ 
+    "devid" : "P28nMQedRNHmSiPAN",
+    'pid': 'B28nMQedRNHmSiPAN',
+    "property" : "color",
+    "service" : "lighting",
+    "value" : "#ffefdb",
+    "label" : "颜色",
+    'role': 'citizen',
+  });
+});
+
 Meteor.publish("iot-devices",function(){
   return IoT.Device.devices.find();
 });
