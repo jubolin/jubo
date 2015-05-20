@@ -32,7 +32,7 @@ meteor
 **运行juot**
 ```
 git clone https://github.com/jubolin/jubo.git
-cd juno
+cd jubo
 meteor 
 ```
 
