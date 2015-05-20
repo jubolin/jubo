@@ -29,7 +29,7 @@ meteor
 
 打开浏览器访问http://localhost:3000就可以看到demo了。
 
-**运行juot**
+**运行jubo**
 ```
 git clone https://github.com/jubolin/jubo.git
 cd jubo
