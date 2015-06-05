@@ -57,12 +57,18 @@ var follow = function(friend,me) {
     changed: function(id,property) {
 
       var relation = IoT.Home.relations.findOne({'me': me.pid, 'friend': friend.pid});
-        if(property.value === relation.tie) { 
+        if(property.value === relation.tie.friend) { 
           // increase friendship
           IoT.Logger.log('info','increase friendship ', relation);
           IoT.Home.relations.update(
-            {'_id':relation._id},
+            {'_id': relation._id},
             {$inc: {'friendship': 1}}
+          );
+
+          // update me
+          IoT.Device.properties.update(
+            {'_id': me._id},
+            {$set:{'value': relation.tie.me,'timestamp': new Date().getTime()}}
           );
         }
       }
@@ -79,7 +85,10 @@ var follow = function(friend,me) {
     'me': me.pid, 
     'friend': friend.pid,
     'friendship': 0,
-    'tie': friend.value
+    'tie': {
+      me: me.value,
+      friend: friend.value
+    }
   },function(err,id) {
     IoT.Logger.log('info','create the follow relationship',
                    {'me': me.pid,'friend': friend.pid,'tie': friend.value});
@@ -99,11 +108,11 @@ Meteor.methods({
   add: function(device) {
     var devid = IoT.uuid();
     var dev = {
-      location: 'Home',
       devid: devid,
-      type: device.type,
       about: device.about,
       connector: device.connector,
+      controller: device.controller,
+      icon: device.icon
     };
 
     IoT.Device.devices.insert(dev,function(err,result) {
@@ -131,6 +140,7 @@ Meteor.methods({
         },
 
         changed: function(doc) {
+          IoT.Logger.log('info','property changed',doc);
           self.changed('jubo_iot_properties',doc._id,doc);
         }
       });
@@ -143,11 +153,11 @@ Meteor.methods({
 
   adjust: function(property) {
     var self = this;
-    var timestamp = new Date().getTime();
+    var now = new Date().getTime();
     var friends = IoT.Device.properties.find({ 
       $and: [
-        {'timestamp': {$gt: (timestamp - 60*1000)}},
-        {'timestamp': {$lt: timestamp}},
+        {'timestamp': {$gt: (now - 60*1000)}},
+        {'timestamp': {$lt: now}},
         {'role': {$ne: 'founder'}}
       ]
     });
@@ -158,14 +168,20 @@ Meteor.methods({
       'property': property.property
     });
 
+    if(me.value === property.value)
+      return;
     
     IoT.Device.properties.update(
       {'_id':me._id},
-      {$set:{'value': property.value,'timestamp': timestamp, 'role': 'citizen'}});
+      {$set:{'value': property.value,'timestamp': now, 'role': 'citizen'}});
 
+    me.value = property.value;
     friends.forEach(function(friend)  {
       relation = IoT.Home.relations.findOne({'me': me.pid,'friend': friend.pid});
-      if(relation === undefined) {
+      if(relation === undefined || 
+        relation.tie.me !== me.value || 
+        relation.tie.friend !== friend.value) 
+      {
         follow(friend,me);
       } else {
         if((relation.friendship - 1 ) <= 0) {
@@ -173,6 +189,7 @@ Meteor.methods({
           IoT.Logger.log('info','remove follower',relation);
           IoT.Home.followers[relation._id].stop();
           delete IoT.Home.followers[relation._id];
+          IoT.Home.relations.remove({_id: relation._id});
         } else {
           // decrease friendship
           IoT.Logger.log('info','decrease friendship',relation);
