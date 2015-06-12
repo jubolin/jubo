@@ -41,16 +41,17 @@
 
       <div class="col-md-offset-2">
         <div id="chart">
-
           <div id="controls">
             <div id="deviceIcon">
-              <img class="actor-big" style="background-color:{{device.statusColor}};" src="images/devices/{{device.icon}}">
+              <img class="actor-big" style="background-color:{{device.statusColor}};" 
+                src="images/devices/{{device.icon}}">
             </div>
             <div id="toPopover">
-              <span class="actor-name" style="color:{{device.statusColor}};">{{device.about.name}}({{device.about.location}})</span>
+              <span class="actor-name" style="color:{{device.statusColor}};">
+                {{device.about.name}}<br/>{{device.about.location}}
+              </span>
             </div>
           </div>
-
         </div>
       </div>
     </div>

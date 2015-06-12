@@ -1,5 +1,5 @@
-Meteor.subscribe("iot-devices");
-Meteor.subscribe("iot-properties");
+Meteor.subscribe("jubo-things-devices");
+Meteor.subscribe("jubo-things-properties");
 
 Template.iotDeviceNav.helpers({
   devices: function() {
@@ -19,7 +19,6 @@ Template.iotDevice.rendered = function() {
   arcs = [];
   devid = Session.get('iotDeviceID');
   device = judevs.findOne({'devid':devid});
-  console.log('device:',device);
 
   if(device.status === 'off') 
     return;
@@ -36,9 +35,8 @@ Template.iotDevice.rendered = function() {
     index : 0.70
   });
 
-  properties = juhome.find({'devid':devid});
+  properties = juproperties.find({'devid':devid});
   properties.forEach(function(property) {
-    console.log('property:',property);
     arcs.push({
       name : property.name, 
       raw : property.value, 
