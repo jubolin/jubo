@@ -13,6 +13,12 @@ Template.iotDevice.helpers({
   }
 });
 
+Template.iotDevicePopover.helpers({
+  properties: function() {
+    return juproperties.find({"devid":Session.get('iotDeviceID')});
+  }
+});
+
 Template.iotDevice.rendered = function() {
   var device, devid,properties, arcs, now, delta, color;
 
@@ -37,14 +43,16 @@ Template.iotDevice.rendered = function() {
 
   properties = juproperties.find({'devid':devid});
   properties.forEach(function(property) {
-    arcs.push({
-      name : property.name, 
-      raw : property.value, 
-      label : property.label, 
-      cooked : property.value, 
-      ratio : d3.ratio.translate(property.name,property.value), 
-      index  : 0.60
-    });
+    if(property.service != 'switch' && property.property !== 'status') {
+      arcs.push({
+        name : property.property, 
+        raw : property.value, 
+        label : property.label, 
+        cooked : property.value, 
+        ratio : d3.ratio.translate(property.name,property.value), 
+        index  : 0.60
+      });
+    }
   });
    
   drawArcs(arcs);
