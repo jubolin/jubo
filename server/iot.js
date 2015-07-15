@@ -13,11 +13,11 @@ JuBo.Things.properties = juproperties;
 
 JuBo.Logger = Winston; 
 
-Meteor.publish("jubo-things-devices",function(){
+Meteor.publish("jubo_things_devices",function(){
   return JuBo.Things.devices.find();
 });
 
-Meteor.publish("jubo-things-properties",function(){
+Meteor.publish("jubo_things_properties",function(){
   return JuBo.Things.properties.find();
 });
 
@@ -161,15 +161,15 @@ Meteor.methods({
       });
     });
 
-    Meteor.publish('jubo_JuBo.Things_' + dev.devid, function(devid) {
+    Meteor.publish('jubo_things_device_' + dev.devid, function(devid) {
       var self = this;
       var handler = JuBo.Things.properties.find({'devid':devid},{fields: {'label': 0}}).observe({
         added: function(doc) {
-          self.added('jubo_JuBo.properties',doc._id,doc);
+          self.added('jubo_things_properties',doc._id,doc);
         },
 
         changed: function(doc) {
-          self.changed('jubo_JuBo.properties',doc._id,doc);
+          self.changed('jubo_things_properties',doc._id,doc);
         }
       });
 

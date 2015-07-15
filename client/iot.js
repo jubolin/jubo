@@ -1,5 +1,5 @@
-Meteor.subscribe("jubo-things-devices");
-Meteor.subscribe("jubo-things-properties");
+Meteor.subscribe("jubo_things_devices");
+Meteor.subscribe("jubo_things_properties");
 
 Template.iotDeviceNav.helpers({
   devices: function() {
