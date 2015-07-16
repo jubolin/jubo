@@ -1,29 +1,29 @@
 Meteor.subscribe("jubo_things_devices");
 Meteor.subscribe("jubo_things_properties");
 
-Template.iotDeviceNav.helpers({
+Template.juboDeviceNav.helpers({
   devices: function() {
     return judevs.find();
   }
 });
 
-Template.iotDevice.helpers({
+Template.juboDevice.helpers({
   device: function() {
-    return judevs.findOne({"devid":Session.get('iotDeviceID')});
+    return judevs.findOne({"devid":Session.get('juboDeviceID')});
   }
 });
 
-Template.iotDevicePopover.helpers({
+Template.juboDevicePopover.helpers({
   properties: function() {
-    return juproperties.find({"devid":Session.get('iotDeviceID')});
+    return juproperties.find({"devid":Session.get('juboDeviceID')});
   }
 });
 
-Template.iotDevice.rendered = function() {
+Template.juboDevice.rendered = function() {
   var device, devid,properties, arcs, now, delta, color;
 
   arcs = [];
-  devid = Session.get('iotDeviceID');
+  devid = Session.get('juboDeviceID');
   device = judevs.findOne({'devid':devid});
 
   if(device.status === 'off') 

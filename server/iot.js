@@ -1,5 +1,5 @@
 /**
- * @namespace IoT
+ * @namespace JuBo
  * @summary The namespace for all JuBo.related methods and classes.
  */
 

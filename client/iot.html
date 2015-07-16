@@ -1,9 +1,9 @@
-<template name='iot'>
-  {{> iotDeviceNav}}
-  {{> iotFooter}}
+<template name='jubo'>
+  {{> juboDeviceNav}}
+  {{> juboFooter}}
 </template>
 
-<template name='iotDeviceNav'>
+<template name='juboDeviceNav'>
     <div class="container devnav">
       <div class="row">
         <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
@@ -21,17 +21,17 @@
   </div>
 </template>
 
-<template name='iotFooter'>
+<template name='juboFooter'>
   <div class="container">
     <div class="row site-footer">
-      <a href="https://github.com/jubolin/jubo-iot">
+      <a href="https://github.com/jubolin/jubo">
         <p class="text-center"> <strong>Source in GitHub</strong></p>
       </a>
     </div>
   </div>
 </template>
 
-<template name='iotDevice'>
+<template name='juboDevice'>
   <div class="container">
     <hr class="featurette-divider">
     <div class="row">
@@ -50,7 +50,7 @@
               <span class="actor-name" style="color:{{device.statusColor}};">
                 {{device.about.name}}<br/>{{device.about.location}}
               </span>
-              {{> iotDevicePopover}}
+              {{> juboDevicePopover}}
             </div>
           </div>
         </div>
@@ -59,13 +59,14 @@
   </div>
 </template>
 
-<template name='iotDevicePopover'>
+<template name='juboDevicePopover'>
   <div id="instructions">
     {{#each properties}}
       <div class="modal fade">
-        <div class="modal-dialog>
+        <div class="modal-dialog">
+        </div>
+        <h6>{{property}}</h6>
       </div>
-      <h6>{{property}}</h6>
     {{/each}}
   </div>
 </template>
