@@ -180,6 +180,7 @@ Meteor.methods({
   },
 
   adjust: function(property) {
+    var me;
     var self = this;
     var relations;
     var now = new Date().getTime();
@@ -191,11 +192,19 @@ Meteor.methods({
       ]
     });
 
-    var me = JuBo.Things.properties.findOne({
-      'devid': property.devid,
-      'service': property.service,
-      'property': property.property
-    });
+    if(property.pid) {
+      me = JuBo.Things.properties.findOne({'pid': property.pid});
+      property.devid = me.devid;
+      property.service = me.service;
+      property.property = me.property;
+    }
+    else {
+      me = JuBo.Things.properties.findOne({
+        'devid': property.devid,
+        'service': property.service,
+        'property': property.property
+      });
+    }
 
     if(me.value === property.value)
       return;

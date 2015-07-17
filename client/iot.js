@@ -19,6 +19,37 @@ Template.juboDevicePopover.helpers({
   }
 });
 
+Template.juboDevicePopover.rendered = function() {
+  $('#popoverModal').on('show.bs.modal', function (event) {
+    var modal = $(this);
+    var button = $(event.relatedTarget);
+    Session.set('juboPropertyID',button.data('pid'));
+    modal.find('.modal-body label').html(button.data('property'));
+    modal.find('.modal-body input').val('');
+    console.log('value',button.data('value'));
+    modal.find('.modal-body input').attr("placeholder",button.data('value'));
+  });  
+}
+
+Template.popoverModal.events({
+  'click #popover-submit,keydown #modal-property' : function(event,t) {
+    var value;
+    var property = {};
+
+    console.log('event',event.type,event.which);
+    if(event.type === "keypress" && event.which !== 13)
+      return;
+
+    value = t.find('#modal-property').value;
+    if(!value || value === '')
+      return;
+
+    property.pid = Session.get('juboPropertyID');
+    property.value = value;
+    Meteor.call('adjust',property);
+  }
+});
+
 Template.juboDevice.rendered = function() {
   var device, devid,properties, arcs, now, delta, color;
 
