@@ -32,15 +32,10 @@ Template.juboDevicePopover.rendered = function() {
 }
 
 Template.popoverModal.events({
-  'click #popover-submit,keydown #modal-property' : function(event,t) {
-    var value;
+  'click #popover-submit' : function(event,t) {
     var property = {};
+    var value = t.find('#modal-property').value;
 
-    console.log('event',event.type,event.which);
-    if(event.type === "keypress" && event.which !== 13)
-      return;
-
-    value = t.find('#modal-property').value;
     if(!value || value === '')
       return;
 
