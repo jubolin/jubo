@@ -1,9 +1,9 @@
-<template name='iot'>
-  {{> iotDeviceNav}}
-  {{> iotFooter}}
+<template name='jubo'>
+  {{> juboDeviceNav}}
+  {{> juboFooter}}
 </template>
 
-<template name='iotDeviceNav'>
+<template name='juboDeviceNav'>
     <div class="container devnav">
       <div class="row">
         <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
@@ -21,17 +21,17 @@
   </div>
 </template>
 
-<template name='iotFooter'>
+<template name='juboFooter'>
   <div class="container">
     <div class="row site-footer">
-      <a href="https://github.com/jubolin/jubo-iot">
+      <a href="https://github.com/jubolin/jubo">
         <p class="text-center"> <strong>Source in GitHub</strong></p>
       </a>
     </div>
   </div>
 </template>
 
-<template name='iotDevice'>
+<template name='juboDevice'>
   <div class="container">
     <hr class="featurette-divider">
     <div class="row">
@@ -41,20 +41,63 @@
 
       <div class="col-md-offset-2">
         <div id="chart">
-
           <div id="controls">
             <div id="deviceIcon">
-              <img class="actor-big" style="background-color:{{device.statusColor}};" src="images/devices/{{device.icon}}">
+              <img class="actor-big" style="background-color:{{device.statusColor}};" 
+                src="images/devices/{{device.icon}}">
             </div>
             <div id="toPopover">
-              <span class="actor-name" style="color:{{device.statusColor}};">{{device.about.name}}({{device.about.location}})</span>
+              <span class="actor-name" style="color:{{device.statusColor}};">
+                {{device.about.name}}<br/>{{device.about.location}}
+              </span>
+              {{> juboDevicePopover}}
             </div>
           </div>
-
         </div>
       </div>
     </div>
   </div>
 </template>
 
+<template name='juboDevicePopover'>
+  <div id="instructions">
+    {{#each properties}}
+    <button id="popover" class="btn btn-link btn-lg btn-success" 
+      type="button" data-toggle="modal" data-target="#popoverModal" 
+      data-pid="{{pid}}" data-property="{{property}}" data-value="{{value}}">
+      {{property}} <span class="badge">{{value}}</span>
+    </button>
+    <br/>
+    {{> popoverModal}}
+    {{/each}}
+  </div>
+  </template>
+
+<template name='popoverModal'>
+  <!-- Modal -->
+  <div class="modal fade" id="popoverModal" tabindex="-1" role="dialog" aria-labelledby="popoverModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="popoverModalLabel">修改属性值</h4>
+        </div>
+        <div class="modal-body">
+          <from class="form-horizontal"  role="form" action="#">
+            <div class="form-group">
+              <label class="col-sm-2 control-label">属性名</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="modal-property" placeholder="属性值">
+              </div>
+            </div>
+          </from>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-default" data-dismiss="modal">取消</a>
+          <a href="#" class="btn btn-primary" id="popover-submit" data-dismiss="modal">确定</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 

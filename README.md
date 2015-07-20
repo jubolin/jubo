@@ -1,4 +1,4 @@
-Juot
+JuBo
 ====
 
 数据驱动，具有学习能力的智能家居网关。
@@ -7,7 +7,7 @@ Juot
 ## 愿景
 我们认为使用手机通过网络开关设备不是智能，那只是远程控制。 而在物联网(IoT)和智能家居的目标中，远程控制只是第一步。
 
-Juot希望通过连接家里的一切设备，赋予设备对家更多的感知，构建一个智能的家庭网络，真正的融入家庭生活。
+JuBo希望通过连接家里的一切设备，赋予设备对家更多的感知，构建一个智能的家庭网络，真正的融入家庭生活。
 
 智能、舒适、安全的家，这就是我们的目标。
 
@@ -18,9 +18,21 @@ Juot希望通过连接家里的一切设备，赋予设备对家更多的感知�
 * 简单易用，不需要设置规则，只需要纠正其学习过程的错误 
 
 ## 安装运行
+
+**运行demo**
 ```
-git clone https://github.com/jubolin/juot.git
-cd juot
+git clone https://github.com/jubolin/jubo.git
+cd jubo
+git checkout demo
+meteor 
+```
+
+打开浏览器访问http://localhost:3000就可以看到demo了。
+
+**运行jubo**
+```
+git clone https://github.com/jubolin/jubo.git
+cd jubo
 meteor 
 ```
 
@@ -29,9 +41,9 @@ meteor
 
 ## 开发资源
 
-Wiki: https://github.com/jubolin/juot/wiki
+Wiki: https://github.com/jubolin/jubo/wiki
 
-Juot是在Meteor(https://www.meteor.com) 的基础上开发的，Meteor的开发资源都可以应用在Juot上。
+JuBo是在Meteor(https://www.meteor.com) 的基础上开发的，Meteor的开发资源都可以应用在JuBo上。
 
 ## 联系方式
 Email: jubolin@126.com

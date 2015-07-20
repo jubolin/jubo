@@ -1,144 +1,41 @@
 /**
- * @namespace IoT
- * @summary The namespace for all IoT-related methods and classes.
+ * @namespace JuBo
+ * @summary The namespace for all JuBo.related methods and classes.
  */
 
-IoT = {};
+JuBo = {};
 
-IoT.Home = {};
-IoT.Home.followers = {};
-IoT.Home.relations = jurelations;
+JuBo.Things = {};
+JuBo.Things.followers = {};
+JuBo.Things.devices = judevs;
+JuBo.Things.relations = jurelations;
+JuBo.Things.properties = juproperties;
 
-IoT.Device = {};
-IoT.Device.devices = judevs;
-IoT.Device.properties = juhome;
+JuBo.Logger = Winston; 
 
-IoT.Logger = Winston; 
-
-Meteor.startup(function() {
-  var now = new Date().getTime(); 
-
-  judevs.remove({});
-  judevs.insert({ 
-    'devid' : 'P28nMQedRNHmSiPAN', 
-    'about': {
-      'name': "客厅灯",
-      'type' : 'bulb', 
-      'location' : 'home.parlour', 
-    },
-    "connector" : "alljoyn", 
-    "status" : "on", 
-    "startTime": now, 
-    "statusColor" : "#008000", 
-    "icon" : "lighting-bulb.svg" ,
-    'controller': 'default',
-  });
-
-  judevs.insert({ 
-    'devid' : 'P28nMQedRNHmSiPAO', 
-    'about': {
-      'name': "卧室灯",
-      'type' : 'bulb', 
-      'location' : 'home.bedroom', 
-    },
-    "connector" : "ddp", 
-    "status" : "off", 
-    "startTime": 'doom', 
-    "statusColor" : "#cccccc", 
-    "icon" : "lighting-bulb.svg",
-    'controller': 'default',
-  });
-
-  judevs.insert({ 
-    'devid' : 'P28nMQedRNHmSiPAP', 
-    'about': {
-      'name': "电视",
-      'type' : 'media', 
-      'location' : 'home.parlour', 
-    },
-    "connector" : "alljoyn", 
-    "status" : "on", 
-    "startTime": now, 
-    "statusColor" : "#008000", 
-    "icon" : "media-video.svg", 
-    'controller': 'default',
-  });
-
-  judevs.insert({ 
-    'devid' : 'P28nMQedRNHmSiPAQ', 
-    'about': {
-      'name': "门铃",
-      'type' : 'sensor', 
-      'location' : 'home.parlour', 
-    },
-    "connector" : "alljoyn", 
-    "status" : "on", 
-    "startTime": now, 
-    "statusColor" : "#008000", 
-    "icon" : "sensor-door.svg",
-    'controller': 'default',
-  });
-
-  judevs.insert({ 
-    'devid' : 'P28nMQedRNHmSiPAC', 
-    'about': {
-      'name': "插座",
-      'type' : 'switch', 
-      'location' : 'home.parlour', 
-    },
-    "connector" : "ddp", 
-    "status" : "off", 
-    "startTime": 'doom', 
-    "statusColor" : "#cccccc", 
-    "icon" : "switch-onoff.svg", 
-    'controller': 'default',
-  });
-
-  juhome.remove({});
-  juhome.insert({ 
-    "devid" : "P28nMQedRNHmSiPAN",
-    'pid': 'A28nMQedRNHmSiPAN',
-    "property" : "brightness",
-    "service" : "lighting",
-    "value" : "100",
-    "label" : "亮度",
-    'role': 'citizen',
-  });
-
-  juhome.insert({ 
-    "devid" : "P28nMQedRNHmSiPAN",
-    'pid': 'B28nMQedRNHmSiPAN',
-    "property" : "color",
-    "service" : "lighting",
-    "value" : "#ffefdb",
-    "label" : "颜色",
-    'role': 'citizen',
-  });
+Meteor.publish("jubo_things_devices",function(){
+  return JuBo.Things.devices.find();
 });
 
-Meteor.publish("iot-devices",function(){
-  return IoT.Device.devices.find();
+Meteor.publish("jubo_things_properties",function(){
+  return JuBo.Things.properties.find();
 });
 
-Meteor.publish("iot-properties",function(){
-  return IoT.Device.properties.find();
-});
-
-IoT.Device.get = function(devid) {
-  return IoT.Device.devices.findOne({'devid':devid});
+JuBo.Things.get = function(devid) {
+  return JuBo.Things.devices.findOne({'devid':devid});
 };
 
-IoT.Home.installDevice = function(devid,location) {
-  IoT.Device.devices.update({devid:devid},{$set:{'location': location}});
-  IoT.Device.properties.update({devid:devid},{$set:{'location': location}},{multi:true});
+JuBo.Things.installDevice = function(devid,location) {
+  JuBo.Things.devices.update({devid:devid},{$set:{'location': location}});
+  JuBo.Things.properties.update({devid:devid},{$set:{'location': location}},{multi:true});
 };
 
-IoT.Home.authorize = function(app,locations) {
+JuBo.Things.authorize = function(app,locations) {
   _.each(locations,function(location) {
-    IoT.Logger.log('info',app, ' authorized to ', location);
-    IoT.Device.properties.update({'location':location},{$addToSet: {'authorized': app}},{multi:true});
+    JuBo.Logger.log('info',app, ' authorized to ', location);
+    JuBo.Things.properties.update({'location':location},{$addToSet: {'authorized': app}},{multi:true});
     // ToDo 细粒度的权限控制
-    IoT.Device.properties.allow({
+    JuBo.Things.properties.allow({
       update: function(userId,doc) {
         return true;
       }
@@ -146,7 +43,7 @@ IoT.Home.authorize = function(app,locations) {
   });
 };
 
-IoT.uuid = function() {
+JuBo.uuid = function() {
   return Random.id();
 }
 var survived = function(rules) {
@@ -154,85 +51,125 @@ var survived = function(rules) {
 };
 
 var follow = function(friend,me) {
-  var handler = IoT.Device.properties.find({'pid': friend.pid}).observeChanges({
+  var handler = JuBo.Things.properties.find({'pid': friend.pid}).observeChanges({
     changed: function(id,property) {
 
-      var relation = IoT.Home.relations.findOne({'me': me.pid, 'friend': friend.pid});
-        if(property.value === relation.tie) { 
-          // increase friendship
-          IoT.Logger.log('info','increase friendship ', relation);
-          IoT.Home.relations.update(
-            {'_id':relation._id},
-            {$inc: {'friendship': 1}}
-          );
-        }
+      var query = {'me': me.pid,'friend': friend.pid,'tie':{'me': me.value,'friend': friend.value}};
+      var relation = JuBo.Things.relations.findOne(query);
+
+      JuBo.Logger.log('info','property',property,'changed.');
+      JuBo.Logger.log('info','found the relationship',query);
+
+      if(property.value === relation.tie.friend) { 
+        JuBo.Logger.log('info','increase friendship', relation);
+        JuBo.Things.relations.update(
+          {'_id': relation._id},
+          {$inc: {'friendship': 1}}
+        );
+
+        // update me
+        JuBo.Things.properties.update(
+          {'_id': me._id},
+          {$set:{'value': relation.tie.me,'timestamp': new Date().getTime()}}
+        );
       }
-    });
+    }
+  });
       
     // gather survival rules
   _.each(me.rules, function(rule) {
-    var property = IoT.Device.properties.find({'pid': rule.pid});
+    var property = JuBo.Things.properties.find({'pid': rule.pid});
     rule.value = property.value;
-    IoT.Logger.log('info','gather rule',rule);
+    JuBo.Logger.log('info','gather rule',rule);
   });
 
-  IoT.Home.relations.insert({
+  JuBo.Things.relations.insert({
     'me': me.pid, 
     'friend': friend.pid,
     'friendship': 0,
-    'tie': friend.value
+    'tie': {
+      me: me.value,
+      friend: friend.value
+    },
+    'timestamp': new Date().getTime(),
+    'maturity': 0 
   },function(err,id) {
-    IoT.Logger.log('info','create the follow relationship',
-                   {'me': me.pid,'friend': friend.pid,'tie': friend.value});
-
-    IoT.Home.followers[id] = handler;
+    JuBo.Logger.log('info','create the follow relationship of','me:',me.pid,' and friend:',friend.pid);
+    JuBo.Things.followers[id] = handler;
   });
 
-  IoT.Device.properties.update(
+  JuBo.Things.properties.update(
     {'_id': me._id},
     {$set: {'rules': me.rules}}
   );
 };
 
+var getStatusColor = function(status) {
+  var color = '#cccccc';
+  switch(status) {
+    case 'on':
+      color = '#008000';
+      break;
+    case 'off':
+      color = '#cccccc';
+      break;
+    default:
+      color = '#cccccc';
+  }
 
+  return color;
+};
+
+var checkDevice = function(property) {
+  var pairs = {};
+  if(property.service === 'switch' && property.property === 'status') {
+    pairs.status = property.value;
+    pairs.statusColor = getStatusColor(property.value);
+    if(property.value === 'on')
+      pairs.startTime = new Date().getTime();
+
+    JuBo.Things.devices.update({'devid': property.devid},{$set: pairs});
+  }
+};
 
 Meteor.methods({
   add: function(device) {
-    var devid = IoT.uuid();
+    var devid = JuBo.uuid();
     var dev = {
-      location: 'Home',
       devid: devid,
-      type: device.type,
       about: device.about,
       connector: device.connector,
+      controller: device.controller,
+      icon: device.icon,
+      status : 'off',
+      statusColor: '#cccccc',
     };
 
-    IoT.Device.devices.insert(dev,function(err,result) {
+    JuBo.Things.devices.insert(dev,function(err,result) {
       if(err) return cb(err);
 
       _.each(device.properties,function(property) {
-        property.pid = IoT.uuid();
+        property.pid = JuBo.uuid();
         property.devid = devid;
         property.timestamp = new Date().getTime();
-        //property.friends = [];
-        property.role = 'founder';
+        property.role = 'newcomer';
 
-        IoT.Device.properties.insert(property,function(err,result) {
+        JuBo.Things.properties.insert(property,function(err,result) {
           if(err) return cb(err);
-          IoT.Logger.log('info','add property', property);
+          JuBo.Logger.log('info','add property ', property);
         });
       });
     });
 
-    Meteor.publish('jubo_iot_device_' + dev.devid, function(devid) {
+    Meteor.publish('jubo_things_device_' + dev.devid, function(devid) {
       var self = this;
-      var handler = IoT.Device.properties.find({'devid':devid},{fields: {'label': 0}}).observe({
+      var handler = JuBo.Things.properties.find({'devid':devid},{fields: {'label': 0}}).observe({
         added: function(doc) {
-          self.added('jubo_iot_properties',doc._id,doc);
+          self.added('jubo_things_properties',doc._id,doc);
         },
 
         changed: function(doc) {
-          self.changed('jubo_iot_properties',doc._id,doc);
+          self.changed('jubo_things_properties',doc._id,doc);
         }
       });
 
@@ -243,71 +180,108 @@ Meteor.methods({
   },
 
   adjust: function(property) {
+    var me;
     var self = this;
-    var timestamp = new Date().getTime();
-    var friends = IoT.Device.properties.find({ 
+    var relations;
+    var now = new Date().getTime();
+    var friends = JuBo.Things.properties.find({ 
       $and: [
-        {'timestamp': {$gt: (timestamp - 60*1000)}},
-        {'timestamp': {$lt: timestamp}},
-        {'role': {$ne: 'founder'}}
+        {'timestamp': {$gt: (now - 60*1000)}},
+        {'timestamp': {$lt: now}},
+        {'role': {$ne: 'newcomer'}}
       ]
     });
 
-    var me = IoT.Device.properties.findOne({
-      'devid': property.devid,
-      'service': property.service,
-      'property': property.property
-    });
+    if(property.pid) {
+      me = JuBo.Things.properties.findOne({'pid': property.pid});
+      property.devid = me.devid;
+      property.service = me.service;
+      property.property = me.property;
+    }
+    else {
+      me = JuBo.Things.properties.findOne({
+        'devid': property.devid,
+        'service': property.service,
+        'property': property.property
+      });
+    }
 
+    if(me.value === property.value)
+      return;
+
+    checkDevice(property);
     
-    IoT.Device.properties.update(
+    JuBo.Things.properties.update(
       {'_id':me._id},
-      {$set:{'value': property.value,'timestamp': timestamp, 'role': 'citizen'}});
+      {$set:{'value': property.value,'timestamp': now, 'role': 'veteran'}}
+    );
 
+    me.value = property.value;
+    JuBo.Logger.log('info','adjust property',me);
     friends.forEach(function(friend)  {
-      relation = IoT.Home.relations.findOne({'me': me.pid,'friend': friend.pid});
-      if(relation === undefined) {
-        follow(friend,me);
-      } else {
+      JuBo.Logger.log('info','find a friend',friend);
+      relations = JuBo.Things.relations.findOne({
+        'me': me.pid,
+        'friend': friend.pid,
+        'tie': {
+          'me': me.value,
+          'friend': friend.value
+        }
+      });
+
+      JuBo.Logger.log('info','find relation',relations);
+      if(relations !== undefined)
+        return;
+
+      follow(friend,me);
+
+      relations = JuBo.Things.relations.find({
+        'friend': friend.pid,
+        'tie.friend': friend.value,
+        'friendship': {$gt: 0}
+      });
+
+      relations.forEach(function(relation) {
         if((relation.friendship - 1 ) <= 0) {
           // remove follower
-          IoT.Logger.log('info','remove follower',relation);
-          IoT.Home.followers[relation._id].stop();
-          delete IoT.Home.followers[relation._id];
+          JuBo.Logger.log('info','remove follower',relation);
+          JuBo.Things.followers[relation._id].stop();
+          delete JuBo.Things.followers[relation._id];
+          JuBo.Things.relations.remove({_id: relation._id});
         } else {
           // decrease friendship
-          IoT.Logger.log('info','decrease friendship',relation);
-          IoT.Home.relations.update(
+          JuBo.Logger.log('info','decrease friendship',relation);
+          JuBo.Things.relations.update(
             {'_id': relation._id},
             {$inc: {'friendship': -1}}
           );
         }
-      }
+      });
     });
   },
 
   feedback: function(err,property) {
     if(err && property) {
-      IoT.Device.properties.update({'devid': property.devid},{$set:{'value': value}});
+      JuBo.Things.properties.update({'devid': property.devid},{$set:{'value': value}});
     }
   },
 
   remove: function(devid) {
-    IoT.Device.devices.remove({'devid':devid});
-    IoT.Device.properties.remove({'devid':devid});
+    JuBo.Things.devices.remove({'devid':devid});
+    JuBo.Things.properties.remove({'devid':devid});
   },
 
   createHomeSlice: function(name) {
-    console.log('crate home slice',name);
-    Meteor.publish('jubo_iot_home_slice_' + name,function(name) {
+    JuBo.Logger.log('info','create slice',name);
+    Meteor.publish('jubo_things_slice_' + name,function(name) {
       var self = this;
-      var handler = IoT.Device.properties.find({'authorized':name},{fields: {'authorized':0}}).observe({
+      var handler = JuBo.Things.properties.find({'authorized':name},{fields: {'authorized':0}}).observe({
         added: function(doc) {
-          self.added('jubo_iot_properties',doc._id,doc);
+          self.added('jubo_things_properties',doc._id,doc);
           //console.log('publish added:',doc);
         },
         changed: function(doc) {
-          self.changed('jubo_iot_properties',doc._id,doc);
+          self.changed('jubo_things_properties',doc._id,doc);
           //console.log('publish changed:',doc);
         }
       });
@@ -317,7 +291,7 @@ Meteor.methods({
   },
 
   requestAuthorization: function(app,locations) {
-    console.log('Application ' + app + 'request authorization ' + locations);
+    JuBo.Logger.log('info','Application',app,'request authorization',locations);
   }
 });
 

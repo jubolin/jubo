@@ -1,25 +1,56 @@
-Meteor.subscribe("iot-devices");
-Meteor.subscribe("iot-properties");
+Meteor.subscribe("jubo_things_devices");
+Meteor.subscribe("jubo_things_properties");
 
-Template.iotDeviceNav.helpers({
+Template.juboDeviceNav.helpers({
   devices: function() {
     return judevs.find();
   }
 });
 
-Template.iotDevice.helpers({
+Template.juboDevice.helpers({
   device: function() {
-    return judevs.findOne({"devid":Session.get('iotDeviceID')});
+    return judevs.findOne({"devid":Session.get('juboDeviceID')});
   }
 });
 
-Template.iotDevice.rendered = function() {
+Template.juboDevicePopover.helpers({
+  properties: function() {
+    return juproperties.find({"devid":Session.get('juboDeviceID')});
+  }
+});
+
+Template.juboDevicePopover.rendered = function() {
+  $('#popoverModal').on('show.bs.modal', function (event) {
+    var modal = $(this);
+    var button = $(event.relatedTarget);
+    Session.set('juboPropertyID',button.data('pid'));
+    modal.find('.modal-body label').html(button.data('property'));
+    modal.find('.modal-body input').val('');
+    console.log('value',button.data('value'));
+    modal.find('.modal-body input').attr("placeholder",button.data('value'));
+  });  
+}
+
+Template.popoverModal.events({
+  'click #popover-submit' : function(event,t) {
+    var property = {};
+    var value = t.find('#modal-property').value;
+
+    if(!value || value === '')
+      return;
+
+    property.pid = Session.get('juboPropertyID');
+    property.value = value;
+    Meteor.call('adjust',property);
+  }
+});
+
+Template.juboDevice.rendered = function() {
   var device, devid,properties, arcs, now, delta, color;
 
   arcs = [];
-  devid = Session.get('iotDeviceID');
+  devid = Session.get('juboDeviceID');
   device = judevs.findOne({'devid':devid});
-  console.log('device:',device);
 
   if(device.status === 'off') 
     return;
@@ -36,17 +67,18 @@ Template.iotDevice.rendered = function() {
     index : 0.70
   });
 
-  properties = juhome.find({'devid':devid});
+  properties = juproperties.find({'devid':devid});
   properties.forEach(function(property) {
-    console.log('property:',property);
-    arcs.push({
-      name : property.name, 
-      raw : property.value, 
-      label : property.label, 
-      cooked : property.value, 
-      ratio : d3.ratio.translate(property.name,property.value), 
-      index  : 0.60
-    });
+    if(property.service != 'switch' && property.property !== 'status') {
+      arcs.push({
+        name : property.property, 
+        raw : property.value, 
+        label : property.label, 
+        cooked : property.value, 
+        ratio : d3.ratio.translate(property.name,property.value), 
+        index  : 0.60
+      });
+    }
   });
    
   drawArcs(arcs);
