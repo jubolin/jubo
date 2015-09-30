@@ -132,6 +132,59 @@ var checkDevice = function(property) {
   }
 };
 
+var evolve = function(me) {
+  var relations;
+  var now = new Date().getTime();
+  var friends = JuBo.Things.properties.find({ 
+    $and: [
+      {'timestamp': {$gt: (now - 60*1000)}},
+      {'timestamp': {$lt: now}},
+      {'role': {$ne: 'newcomer'}}
+    ]
+  });
+
+  friends.forEach(function(friend)  {
+    JuBo.Logger.log('info','find a friend',friend);
+    relations = JuBo.Things.relations.findOne({
+      'me': me.pid,
+      'friend': friend.pid,
+      'tie': {
+        'me': me.value,
+        'friend': friend.value
+      }
+    });
+
+    JuBo.Logger.log('info','find relation',relations);
+    if(relations !== undefined)
+      return;
+
+    follow(friend,me);
+
+    relations = JuBo.Things.relations.find({
+      'friend': friend.pid,
+      'tie.friend': friend.value,
+      'friendship': {$gt: 0}
+    });
+
+    relations.forEach(function(relation) {
+      if((relation.friendship - 1 ) <= 0) {
+        // remove follower
+        JuBo.Logger.log('info','remove follower',relation);
+        JuBo.Things.followers[relation._id].stop();
+        delete JuBo.Things.followers[relation._id];
+        JuBo.Things.relations.remove({_id: relation._id});
+      } else {
+        // decrease friendship
+        JuBo.Logger.log('info','decrease friendship',relation);
+        JuBo.Things.relations.update(
+          {'_id': relation._id},
+          {$inc: {'friendship': -1}}
+        );
+      }
+    });
+  });
+}
+
 Meteor.methods({
   add: function(device) {
     var devid = JuBo.uuid();
@@ -182,16 +235,7 @@ Meteor.methods({
   adjust: function(property) {
     var me;
     var self = this;
-    var relations;
-    var now = new Date().getTime();
-    var friends = JuBo.Things.properties.find({ 
-      $and: [
-        {'timestamp': {$gt: (now - 60*1000)}},
-        {'timestamp': {$lt: now}},
-        {'role': {$ne: 'newcomer'}}
-      ]
-    });
-
+    
     if(property.pid) {
       me = JuBo.Things.properties.findOne({'pid': property.pid});
       property.devid = me.devid;
@@ -217,47 +261,7 @@ Meteor.methods({
     );
 
     me.value = property.value;
-    JuBo.Logger.log('info','adjust property',me);
-    friends.forEach(function(friend)  {
-      JuBo.Logger.log('info','find a friend',friend);
-      relations = JuBo.Things.relations.findOne({
-        'me': me.pid,
-        'friend': friend.pid,
-        'tie': {
-          'me': me.value,
-          'friend': friend.value
-        }
-      });
-
-      JuBo.Logger.log('info','find relation',relations);
-      if(relations !== undefined)
-        return;
-
-      follow(friend,me);
-
-      relations = JuBo.Things.relations.find({
-        'friend': friend.pid,
-        'tie.friend': friend.value,
-        'friendship': {$gt: 0}
-      });
-
-      relations.forEach(function(relation) {
-        if((relation.friendship - 1 ) <= 0) {
-          // remove follower
-          JuBo.Logger.log('info','remove follower',relation);
-          JuBo.Things.followers[relation._id].stop();
-          delete JuBo.Things.followers[relation._id];
-          JuBo.Things.relations.remove({_id: relation._id});
-        } else {
-          // decrease friendship
-          JuBo.Logger.log('info','decrease friendship',relation);
-          JuBo.Things.relations.update(
-            {'_id': relation._id},
-            {$inc: {'friendship': -1}}
-          );
-        }
-      });
-    });
+    //evolve(me); 
   },
 
   feedback: function(err,property) {
