@@ -1,9 +1,9 @@
 <template name='jubo'>
-  {{> juboDeviceNav}}
+  {{> juboThingNav}}
   {{> juboFooter}}
 </template>
 
-<template name='juboDeviceNav'>
+<template name='juboThingeNav'>
     <div class="container devnav">
       <div class="row">
         <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
@@ -31,7 +31,7 @@
   </div>
 </template>
 
-<template name='juboDevice'>
+<template name='juboThing'>
   <div class="container">
     <hr class="featurette-divider">
     <div class="row">
@@ -59,7 +59,7 @@
   </div>
 </template>
 
-<template name='juboDevicePopover'>
+<template name='juboThingPopover'>
   <div id="instructions">
     {{#each properties}}
     <button id="popover" class="btn btn-link btn-lg btn-success" 

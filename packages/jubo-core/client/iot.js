@@ -1,32 +1,31 @@
 Meteor.subscribe("jubo_things_devices");
 Meteor.subscribe("jubo_things_properties");
 
-Template.juboDeviceNav.helpers({
+Template.juboThingNav.helpers({
   devices: function() {
-    return judevs.find();
+    return juthings.find();
   }
 });
 
-Template.juboDevice.helpers({
+Template.juboThing.helpers({
   device: function() {
-    return judevs.findOne({"devid":Session.get('juboDeviceID')});
+    return juthings.findOne({"tid":Session.get('juboThingID')});
   }
 });
 
-Template.juboDevicePopover.helpers({
+Template.juboThingPopover.helpers({
   properties: function() {
-    return juproperties.find({"devid":Session.get('juboDeviceID')});
+    return juproperties.find({"tid":Session.get('juboThingID')});
   }
 });
 
-Template.juboDevicePopover.rendered = function() {
+Template.juboThingPopover.rendered = function() {
   $('#popoverModal').on('show.bs.modal', function (event) {
     var modal = $(this);
     var button = $(event.relatedTarget);
     Session.set('juboPropertyID',button.data('pid'));
     modal.find('.modal-body label').html(button.data('property'));
     modal.find('.modal-body input').val('');
-    console.log('value',button.data('value'));
     modal.find('.modal-body input').attr("placeholder",button.data('value'));
   });  
 }
@@ -45,14 +44,14 @@ Template.popoverModal.events({
   }
 });
 
-Template.juboDevice.rendered = function() {
-  var device, devid,properties, arcs, now, delta, color;
+Template.juboThing.rendered = function() {
+  var thing, tid,properties, arcs, now, delta, color;
 
   arcs = [];
-  devid = Session.get('juboDeviceID');
-  device = judevs.findOne({'devid':devid});
+  tid = Session.get('juboThingID');
+  thing = juthings.findOne({'tid':tid});
 
-  if(device.status === 'off') 
+  if(thing.status === 'off') 
     return;
 
   now = new Date().getTime();
@@ -67,7 +66,7 @@ Template.juboDevice.rendered = function() {
     index : 0.70
   });
 
-  properties = juproperties.find({'devid':devid});
+  properties = juproperties.find({'tid':tid});
   properties.forEach(function(property) {
     if(property.service != 'switch' && property.property !== 'status') {
       arcs.push({

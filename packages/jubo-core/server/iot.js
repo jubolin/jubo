@@ -7,7 +7,7 @@ JuBo = {};
 
 JuBo.Things = {};
 JuBo.Things.followers = {};
-JuBo.Things.devices = judevs;
+JuBo.Things.devices = juthings;
 JuBo.Things.relations = jurelations;
 JuBo.Things.properties = juproperties;
 
@@ -21,13 +21,13 @@ Meteor.publish("jubo_things_properties",function(){
   return JuBo.Things.properties.find();
 });
 
-JuBo.Things.get = function(devid) {
-  return JuBo.Things.devices.findOne({'devid':devid});
+JuBo.Things.get = function(tid) {
+  return JuBo.Things.devices.findOne({'tid':tid});
 };
 
-JuBo.Things.installDevice = function(devid,location) {
-  JuBo.Things.devices.update({devid:devid},{$set:{'location': location}});
-  JuBo.Things.properties.update({devid:devid},{$set:{'location': location}},{multi:true});
+JuBo.Things.install = function(tid,location) {
+  JuBo.Things.devices.update({tid:tid},{$set:{'location': location}});
+  JuBo.Things.properties.update({tid:tid},{$set:{'location': location}},{multi:true});
 };
 
 JuBo.Things.authorize = function(app,locations) {
@@ -187,9 +187,11 @@ var evolve = function(me) {
 
 Meteor.methods({
   add: function(device) {
-    var devid = JuBo.uuid();
+    var thing = {
+      tid: JuBo.uuid();
+    };
     var dev = {
-      devid: devid,
+      tid: thing.tid,
       about: device.about,
       connector: device.connector,
       controller: device.controller,
@@ -203,7 +205,7 @@ Meteor.methods({
 
       _.each(device.properties,function(property) {
         property.pid = JuBo.uuid();
-        property.devid = devid;
+        property.tid = thing.tid;
         property.timestamp = new Date().getTime();
         property.role = 'newcomer';
 
@@ -214,9 +216,9 @@ Meteor.methods({
       });
     });
 
-    Meteor.publish('jubo_things_device_' + dev.devid, function(devid) {
+    Meteor.publish('jubo_things_' + dev.tid, function(tid) {
       var self = this;
-      var handler = JuBo.Things.properties.find({'devid':devid},{fields: {'label': 0}}).observe({
+      var handler = JuBo.Things.properties.find({'tid':tid},{fields: {'label': 0}}).observe({
         added: function(doc) {
           self.added('jubo_things_properties',doc._id,doc);
         },
@@ -229,7 +231,7 @@ Meteor.methods({
       self.ready();
     });
 
-    return devid;
+    return thing;
   },
 
   adjust: function(property) {
@@ -238,13 +240,13 @@ Meteor.methods({
     
     if(property.pid) {
       me = JuBo.Things.properties.findOne({'pid': property.pid});
-      property.devid = me.devid;
+      property.tid = me.tid;
       property.service = me.service;
       property.property = me.property;
     }
     else {
       me = JuBo.Things.properties.findOne({
-        'devid': property.devid,
+        'tid': property.tid,
         'service': property.service,
         'property': property.property
       });
@@ -266,13 +268,13 @@ Meteor.methods({
 
   feedback: function(err,property) {
     if(err && property) {
-      JuBo.Things.properties.update({'devid': property.devid},{$set:{'value': value}});
+      JuBo.Things.properties.update({'tid': property.tid},{$set:{'value': value}});
     }
   },
 
-  remove: function(devid) {
-    JuBo.Things.devices.remove({'devid':devid});
-    JuBo.Things.properties.remove({'devid':devid});
+  remove: function(tid) {
+    JuBo.Things.devices.remove({'tid':tid});
+    JuBo.Things.properties.remove({'tid':tid});
   },
 
   createHomeSlice: function(name) {
