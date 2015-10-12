@@ -188,7 +188,7 @@ var evolve = function(me) {
 Meteor.methods({
   add: function(device) {
     var thing = {
-      tid: JuBo.uuid()
+      tid: JuBo.uuid();
     };
     var dev = {
       tid: thing.tid,
