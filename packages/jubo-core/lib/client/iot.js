@@ -2,20 +2,21 @@ Meteor.subscribe("jubo_things_devices");
 Meteor.subscribe("jubo_things_properties");
 
 Template.juboThingNav.helpers({
-  devices: function() {
-    return juthings.find();
+  things: function() {
+    //return juthings.find();
+    return Jubo.Things.entities.find();
   }
 });
 
 Template.juboThing.helpers({
-  device: function() {
-    return juthings.findOne({"tid":Session.get('juboThingID')});
+  thing: function() {
+    return Jubo.Things.entities.findOne({"tid":Session.get('juboThingID')});
   }
 });
 
 Template.juboThingPopover.helpers({
   properties: function() {
-    return juproperties.find({"tid":Session.get('juboThingID')});
+    return Jubo.Things.properties.find({"tid":Session.get('juboThingID')});
   }
 });
 
@@ -49,24 +50,24 @@ Template.juboThing.rendered = function() {
 
   arcs = [];
   tid = Session.get('juboThingID');
-  thing = juthings.findOne({'tid':tid});
+  thing = Jubo.Things.entities.findOne({'tid':tid});
 
   if(thing.status === 'off') 
     return;
 
   now = new Date().getTime();
-  delta = d3.ratio.clip2bars(now - (new Date(device.startTime).getTime()), 0, 86400 * 1000);
+  delta = d3.ratio.clip2bars(now - (new Date(thing.startTime).getTime()), 0, 86400 * 1000);
   // running time
   arcs.push({ 
     name : 'start', 
-    raw : device.start, 
+    raw : thing.start, 
     label : '运行时间', 
-    cooked : d3.timestamp.ago(device.start), 
+    cooked : d3.timestamp.ago(thing.start), 
     ratio : delta, 
     index : 0.70
   });
 
-  properties = juproperties.find({'tid':tid});
+  properties = Jubo.Things.properties.find({'tid':tid});
   properties.forEach(function(property) {
     if(property.service != 'switch' && property.property !== 'status') {
       arcs.push({

@@ -1,17 +1,21 @@
 <template name='jubo'>
+<!--
   {{> juboThingNav}}
   {{> juboFooter}}
+  -->
+  
+  <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
 </template>
 
-<template name='juboThingeNav'>
+<template name='juboThingNav'>
     <div class="container devnav">
       <div class="row">
         <h2><i class="fa fa-leaf logo"></i>The IoT Gateway</h2>
       </div>
       <div class="row" id="devices">
-        {{#each devices}}
+        {{#each things}}
           <div class="col-xs-3 col-sm-2 col-md-1">
-            <a href="/device/{{devid}}">
+            <a href="/thing/{{tid}}">
               <img src="images/devices/{{icon}}" style="background-color: {{statusColor}};">
               <h4>{{about.name}}</h4>
             </a>
@@ -43,12 +47,12 @@
         <div id="chart">
           <div id="controls">
             <div id="deviceIcon">
-              <img class="actor-big" style="background-color:{{device.statusColor}};" 
-                src="images/devices/{{device.icon}}">
+              <img class="actor-big" style="background-color:{{thing.statusColor}};" 
+                src="images/devices/{{thing.icon}}">
             </div>
             <div id="toPopover">
-              <span class="actor-name" style="color:{{device.statusColor}};">
-                {{device.about.name}}<br/>{{device.about.location}}
+              <span class="actor-name" style="color:{{thing.statusColor}};">
+                {{thing.about.name}}<br/>{{thing.about.location}}
               </span>
               {{> juboDevicePopover}}
             </div>

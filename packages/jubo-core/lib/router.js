@@ -1,12 +1,13 @@
 Router.route('/',function() {
+  console.log('render jubo');
   this.render('jubo');
 });
 
 Router.route('/thing/:tid',function(){
-  var dev = judevs.findOne({"tid":this.params.tid});
+  var thing = juthings.findOne({"tid":this.params.tid});
   Session.set('juboThingID',this.params.tid);
-  if(dev.controller !== "default")
-    this.render(dev.controller);
+  if(thing.controller !== "default")
+    this.render(thing.controller);
   else
     this.render('juboThing');
 });

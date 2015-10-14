@@ -1,74 +1,91 @@
 /**
- * @namespace JuBo
- * @summary The namespace for all JuBo.related methods and classes.
+ * @namespace Jubo
+ * @summary The namespace for all Jubo.related methods and classes.
  */
 
-JuBo = {};
 
-JuBo.Things = {};
-JuBo.Things.followers = {};
-JuBo.Things.devices = juthings;
-JuBo.Things.relations = jurelations;
-JuBo.Things.properties = juproperties;
+Jubo.Logger = Winston; 
+/*Meteor.startup(function() {
+  var now = new Date().getTime();
 
-JuBo.Logger = Winston; 
+  juthings.remove({});
+  juthings.insert({
+    'tid': 'P28nMQedRNHmSiPAN',
+    'about': {
+      'name': '客厅灯',
+      'type': 'bulb',
+      'location': 'home.parlour',
+    },
+    'connector': 'alljoyn',
+    'status': 'on',
+    'startTime': now,
+    'statusColor': '#008000',
+    'icon': 'lighting-bulb.svg',
+    'controller': 'default'
+  });
+});
+*/
 
-Meteor.publish("jubo_things_devices",function(){
-  return JuBo.Things.devices.find();
+Meteor.publish("Jubo_things_devices",function(){
+  return Jubo.Things.devices.find();
+  //juthings.find();
 });
 
-Meteor.publish("jubo_things_properties",function(){
-  return JuBo.Things.properties.find();
+Meteor.publish("Jubo_things_properties",function(){
+  return Jubo.Things.properties.find();
 });
 
-JuBo.Things.get = function(tid) {
-  return JuBo.Things.devices.findOne({'tid':tid});
+/*Jubo.Things.get = function(tid) {
+  return Jubo.Things.devices.findOne({'tid':tid});
+};
+*/
+
+/*Jubo.Things.install = function(tid,location) {
+  Jubo.Things.devices.update({tid:tid},{$set:{'location': location}});
+  Jubo.Things.properties.update({tid:tid},{$set:{'location': location}},{multi:true});
 };
 
-JuBo.Things.install = function(tid,location) {
-  JuBo.Things.devices.update({tid:tid},{$set:{'location': location}});
-  JuBo.Things.properties.update({tid:tid},{$set:{'location': location}},{multi:true});
-};
-
-JuBo.Things.authorize = function(app,locations) {
+Jubo.Things.authorize = function(app,locations) {
   _.each(locations,function(location) {
-    JuBo.Logger.log('info',app, ' authorized to ', location);
-    JuBo.Things.properties.update({'location':location},{$addToSet: {'authorized': app}},{multi:true});
+    Jubo.Logger.log('info',app, ' authorized to ', location);
+    Jubo.Things.properties.update({'location':location},{$addToSet: {'authorized': app}},{multi:true});
     // ToDo 细粒度的权限控制
-    JuBo.Things.properties.allow({
+    Jubo.Things.properties.allow({
       update: function(userId,doc) {
         return true;
       }
     });
   });
 };
+*/
 
-JuBo.uuid = function() {
+/*Jubo.uuid = function() {
   return Random.id();
 }
+*/
 var survived = function(rules) {
   return true;
 };
 
 var follow = function(friend,me) {
-  var handler = JuBo.Things.properties.find({'pid': friend.pid}).observeChanges({
+  var handler = Jubo.Things.properties.find({'pid': friend.pid}).observeChanges({
     changed: function(id,property) {
 
       var query = {'me': me.pid,'friend': friend.pid,'tie':{'me': me.value,'friend': friend.value}};
-      var relation = JuBo.Things.relations.findOne(query);
+      var relation = Jubo.Things.relations.findOne(query);
 
-      JuBo.Logger.log('info','property',property,'changed.');
-      JuBo.Logger.log('info','found the relationship',query);
+      Jubo.Logger.log('info','property',property,'changed.');
+      Jubo.Logger.log('info','found the relationship',query);
 
       if(property.value === relation.tie.friend) { 
-        JuBo.Logger.log('info','increase friendship', relation);
-        JuBo.Things.relations.update(
+        Jubo.Logger.log('info','increase friendship', relation);
+        Jubo.Things.relations.update(
           {'_id': relation._id},
           {$inc: {'friendship': 1}}
         );
 
         // update me
-        JuBo.Things.properties.update(
+        Jubo.Things.properties.update(
           {'_id': me._id},
           {$set:{'value': relation.tie.me,'timestamp': new Date().getTime()}}
         );
@@ -78,12 +95,12 @@ var follow = function(friend,me) {
       
     // gather survival rules
   _.each(me.rules, function(rule) {
-    var property = JuBo.Things.properties.find({'pid': rule.pid});
+    var property = Jubo.Things.properties.find({'pid': rule.pid});
     rule.value = property.value;
-    JuBo.Logger.log('info','gather rule',rule);
+    Jubo.Logger.log('info','gather rule',rule);
   });
 
-  JuBo.Things.relations.insert({
+  Jubo.Things.relations.insert({
     'me': me.pid, 
     'friend': friend.pid,
     'friendship': 0,
@@ -94,11 +111,11 @@ var follow = function(friend,me) {
     'timestamp': new Date().getTime(),
     'maturity': 0 
   },function(err,id) {
-    JuBo.Logger.log('info','create the follow relationship of','me:',me.pid,' and friend:',friend.pid);
-    JuBo.Things.followers[id] = handler;
+    Jubo.Logger.log('info','create the follow relationship of','me:',me.pid,' and friend:',friend.pid);
+    Jubo.Things.followers[id] = handler;
   });
 
-  JuBo.Things.properties.update(
+  Jubo.Things.properties.update(
     {'_id': me._id},
     {$set: {'rules': me.rules}}
   );
@@ -128,14 +145,14 @@ var checkDevice = function(property) {
     if(property.value === 'on')
       pairs.startTime = new Date().getTime();
 
-    JuBo.Things.devices.update({'devid': property.devid},{$set: pairs});
+    Jubo.Things.devices.update({'devid': property.devid},{$set: pairs});
   }
 };
 
 var evolve = function(me) {
   var relations;
   var now = new Date().getTime();
-  var friends = JuBo.Things.properties.find({ 
+  var friends = Jubo.Things.properties.find({ 
     $and: [
       {'timestamp': {$gt: (now - 60*1000)}},
       {'timestamp': {$lt: now}},
@@ -144,8 +161,8 @@ var evolve = function(me) {
   });
 
   friends.forEach(function(friend)  {
-    JuBo.Logger.log('info','find a friend',friend);
-    relations = JuBo.Things.relations.findOne({
+    Jubo.Logger.log('info','find a friend',friend);
+    relations = Jubo.Things.relations.findOne({
       'me': me.pid,
       'friend': friend.pid,
       'tie': {
@@ -154,13 +171,13 @@ var evolve = function(me) {
       }
     });
 
-    JuBo.Logger.log('info','find relation',relations);
+    Jubo.Logger.log('info','find relation',relations);
     if(relations !== undefined)
       return;
 
     follow(friend,me);
 
-    relations = JuBo.Things.relations.find({
+    relations = Jubo.Things.relations.find({
       'friend': friend.pid,
       'tie.friend': friend.value,
       'friendship': {$gt: 0}
@@ -169,14 +186,14 @@ var evolve = function(me) {
     relations.forEach(function(relation) {
       if((relation.friendship - 1 ) <= 0) {
         // remove follower
-        JuBo.Logger.log('info','remove follower',relation);
-        JuBo.Things.followers[relation._id].stop();
-        delete JuBo.Things.followers[relation._id];
-        JuBo.Things.relations.remove({_id: relation._id});
+        Jubo.Logger.log('info','remove follower',relation);
+        Jubo.Things.followers[relation._id].stop();
+        delete Jubo.Things.followers[relation._id];
+        Jubo.Things.relations.remove({_id: relation._id});
       } else {
         // decrease friendship
-        JuBo.Logger.log('info','decrease friendship',relation);
-        JuBo.Things.relations.update(
+        Jubo.Logger.log('info','decrease friendship',relation);
+        Jubo.Things.relations.update(
           {'_id': relation._id},
           {$inc: {'friendship': -1}}
         );
@@ -188,7 +205,7 @@ var evolve = function(me) {
 Meteor.methods({
   add: function(device) {
     var thing = {
-      tid: JuBo.uuid()
+      tid: Jubo.uuid()
     };
     var dev = {
       tid: thing.tid,
@@ -200,31 +217,31 @@ Meteor.methods({
       statusColor: '#cccccc',
     };
 
-    JuBo.Things.devices.insert(dev,function(err,result) {
+    Jubo.Things.devices.insert(dev,function(err,result) {
       if(err) return cb(err);
 
       _.each(device.properties,function(property) {
-        property.pid = JuBo.uuid();
+        property.pid = Jubo.uuid();
         property.tid = thing.tid;
         property.timestamp = new Date().getTime();
         property.role = 'newcomer';
 
-        JuBo.Things.properties.insert(property,function(err,result) {
+        Jubo.Things.properties.insert(property,function(err,result) {
           if(err) return cb(err);
-          JuBo.Logger.log('info','add property ', property);
+          Jubo.Logger.log('info','add property ', property);
         });
       });
     });
 
-    Meteor.publish('jubo_things_' + dev.tid, function(tid) {
+    Meteor.publish('Jubo_things_' + dev.tid, function(tid) {
       var self = this;
-      var handler = JuBo.Things.properties.find({'tid':tid},{fields: {'label': 0}}).observe({
+      var handler = Jubo.Things.properties.find({'tid':tid},{fields: {'label': 0}}).observe({
         added: function(doc) {
-          self.added('jubo_things_properties',doc._id,doc);
+          self.added('Jubo_things_properties',doc._id,doc);
         },
 
         changed: function(doc) {
-          self.changed('jubo_things_properties',doc._id,doc);
+          self.changed('Jubo_things_properties',doc._id,doc);
         }
       });
 
@@ -239,13 +256,13 @@ Meteor.methods({
     var self = this;
     
     if(property.pid) {
-      me = JuBo.Things.properties.findOne({'pid': property.pid});
+      me = Jubo.Things.properties.findOne({'pid': property.pid});
       property.tid = me.tid;
       property.service = me.service;
       property.property = me.property;
     }
     else {
-      me = JuBo.Things.properties.findOne({
+      me = Jubo.Things.properties.findOne({
         'tid': property.tid,
         'service': property.service,
         'property': property.property
@@ -257,7 +274,7 @@ Meteor.methods({
 
     checkDevice(property);
     
-    JuBo.Things.properties.update(
+    Jubo.Things.properties.update(
       {'_id':me._id},
       {$set:{'value': property.value,'timestamp': now, 'role': 'veteran'}}
     );
@@ -268,26 +285,26 @@ Meteor.methods({
 
   feedback: function(err,property) {
     if(err && property) {
-      JuBo.Things.properties.update({'tid': property.tid},{$set:{'value': value}});
+      Jubo.Things.properties.update({'tid': property.tid},{$set:{'value': value}});
     }
   },
 
   remove: function(tid) {
-    JuBo.Things.devices.remove({'tid':tid});
-    JuBo.Things.properties.remove({'tid':tid});
+    Jubo.Things.devices.remove({'tid':tid});
+    Jubo.Things.properties.remove({'tid':tid});
   },
 
   createHomeSlice: function(name) {
-    JuBo.Logger.log('info','create slice',name);
-    Meteor.publish('jubo_things_slice_' + name,function(name) {
+    Jubo.Logger.log('info','create slice',name);
+    Meteor.publish('Jubo_things_slice_' + name,function(name) {
       var self = this;
-      var handler = JuBo.Things.properties.find({'authorized':name},{fields: {'authorized':0}}).observe({
+      var handler = Jubo.Things.properties.find({'authorized':name},{fields: {'authorized':0}}).observe({
         added: function(doc) {
-          self.added('jubo_things_properties',doc._id,doc);
+          self.added('Jubo_things_properties',doc._id,doc);
           //console.log('publish added:',doc);
         },
         changed: function(doc) {
-          self.changed('jubo_things_properties',doc._id,doc);
+          self.changed('Jubo_things_properties',doc._id,doc);
           //console.log('publish changed:',doc);
         }
       });
@@ -297,7 +314,7 @@ Meteor.methods({
   },
 
   requestAuthorization: function(app,locations) {
-    JuBo.Logger.log('info','Application',app,'request authorization',locations);
+    Jubo.Logger.log('info','Application',app,'request authorization',locations);
   }
 });
 
