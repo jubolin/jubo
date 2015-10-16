@@ -1,5 +1,4 @@
 Router.route('/',function() {
-  console.log('render jubo');
   this.render('jubo');
 });
 
