@@ -1,52 +1,84 @@
-Meteor.subscribe("iot-devices");
-Meteor.subscribe("iot-properties");
+Meteor.subscribe("jubo_things_devices");
+Meteor.subscribe("jubo_things_properties");
 
-Template.iotDeviceNav.helpers({
-  devices: function() {
-    return judevs.find();
+Template.juboThingNav.helpers({
+  things: function() {
+    //return juthings.find();
+    return Jubo.Things.entities.find();
   }
 });
 
-Template.iotDevice.helpers({
-  device: function() {
-    return judevs.findOne({"devid":Session.get('iotDeviceID')});
+Template.juboThing.helpers({
+  thing: function() {
+    return Jubo.Things.entities.findOne({"tid":Session.get('juboThingID')});
   }
 });
 
-Template.iotDevice.rendered = function() {
-  var device, devid,properties, arcs, now, delta, color;
+Template.juboThingPopover.helpers({
+  properties: function() {
+    return Jubo.Things.properties.find({"tid":Session.get('juboThingID')});
+  }
+});
+
+Template.juboThingPopover.rendered = function() {
+  $('#popoverModal').on('show.bs.modal', function (event) {
+    var modal = $(this);
+    var button = $(event.relatedTarget);
+    Session.set('juboPropertyID',button.data('pid'));
+    modal.find('.modal-body label').html(button.data('property'));
+    modal.find('.modal-body input').val('');
+    modal.find('.modal-body input').attr("placeholder",button.data('value'));
+  });  
+}
+
+Template.popoverModal.events({
+  'click #popover-submit' : function(event,t) {
+    var property = {};
+    var value = t.find('#modal-property').value;
+
+    if(!value || value === '')
+      return;
+
+    property.pid = Session.get('juboPropertyID');
+    property.value = value;
+    Meteor.call('adjust',property);
+  }
+});
+
+Template.juboThing.rendered = function() {
+  var thing, tid,properties, arcs, now, delta, color;
 
   arcs = [];
-  devid = Session.get('iotDeviceID');
-  device = judevs.findOne({'devid':devid});
-  console.log('device:',device);
+  tid = Session.get('juboThingID');
+  thing = Jubo.Things.entities.findOne({'tid':tid});
 
-  if(device.status === 'off') 
+  if(thing.status === 'off') 
     return;
 
   now = new Date().getTime();
-  delta = d3.ratio.clip2bars(now - (new Date(device.startTime).getTime()), 0, 86400 * 1000);
+  delta = d3.ratio.clip2bars(now - (new Date(thing.startTime).getTime()), 0, 86400 * 1000);
   // running time
   arcs.push({ 
     name : 'start', 
-    raw : device.start, 
+    raw : thing.start, 
     label : '运行时间', 
-    cooked : d3.timestamp.ago(device.start), 
+    cooked : d3.timestamp.ago(thing.start), 
     ratio : delta, 
     index : 0.70
   });
 
-  properties = juhome.find({'devid':devid});
+  properties = Jubo.Things.properties.find({'tid':tid});
   properties.forEach(function(property) {
-    console.log('property:',property);
-    arcs.push({
-      name : property.name, 
-      raw : property.value, 
-      label : property.label, 
-      cooked : property.value, 
-      ratio : d3.ratio.translate(property.name,property.value), 
-      index  : 0.60
-    });
+    if(property.service != 'switch' && property.property !== 'status') {
+      arcs.push({
+        name : property.property, 
+        raw : property.value, 
+        label : property.label, 
+        cooked : property.value, 
+        ratio : d3.ratio.translate(property.name,property.value), 
+        index  : 0.60
+      });
+    }
   });
    
   drawArcs(arcs);
