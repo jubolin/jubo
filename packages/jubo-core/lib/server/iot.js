@@ -3,17 +3,22 @@
  * @summary The namespace for all Jubo.related methods and classes.
  */
 
-var Jubolin;
-
 Meteor.startup(function () {
-  Jubolin = DDP.connect("http://localhost:3000");
+
+});
+
+var  Jubolin = DDP.connect("http://localhost:3000");
+  console.log("Jubolin satus:",Jubolin.status());
   if(Jubolin.status().connected) {
+    console.log('settings:',Meteor.settings);
+    Jubolin.call('whoami',{
+      'uuid': Meteor.settings.uuid,
+      'token': Meteor.settings.token
+    });
     Jubolin.subscribe('jubolin_iot_things',Meteor.settings.uuid);
   } else {
     Jubolin.reconnect();
 }
-
-});
 
 
 var Things = new Mongo.Collection('jubolin_iot_things');
