@@ -3,6 +3,44 @@
  * @summary The namespace for all Jubo.related methods and classes.
  */
 
+var Jubolin;
+
+Meteor.startup(function () {
+  Jubolin = DDP.connect("http://localhost:3000");
+  if(Jubolin.status().connected) {
+    Jubolin.subscribe('jubolin_iot_things',Meteor.settings.uuid);
+  } else {
+    Jubolin.reconnect();
+}
+
+});
+
+
+var Things = new Mongo.Collection('jubolin_iot_things');
+var Properties = new Mongo.Collection('jubolin_iot_things_properties');
+
+Things.find({'gateway': Meteor.settings.uuid}).observeChanges({
+  added: function(id,device) {
+    device.tid = id;
+    addDevice(device);
+  },
+
+  removed: function(id) {
+    Jubo.Things.devices.remove({'tid': id});
+    Jubo.Things.properties.remove({'tid': id});
+  }
+});
+
+Properties.find({'gateway': Meteor.settings.uuid}).observeChanges({
+  changed: function(id, fields) {
+    var property = {
+      'pid' : id,
+      'value': fields.value
+    };
+    adjustProperty(property);
+  }
+});
+
 
 Jubo.Logger = Winston; 
 /*Meteor.startup(function() {
@@ -202,18 +240,13 @@ var evolve = function(me) {
   });
 }
 
-Meteor.methods({
-  add: function(device) {
-    var thing = {
-      tid: Jubo.uuid()
-    };
-    var dev = {
-      tid: thing.tid,
+var addDevice = function(device) {
+  var dev = {
+      tid: device.tid,
       about: device.about,
-      connector: device.connector,
       controller: device.controller,
-      icon: device.icon,
-      status : 'off',
+      iconUrl: device.iconUrl,
+      status : device.status,
       statusColor: '#cccccc',
     };
 
@@ -247,13 +280,10 @@ Meteor.methods({
 
       self.ready();
     });
+}
 
-    return thing;
-  },
-
-  adjust: function(property) {
-    var me;
-    var self = this;
+var adjustProperty = function(property) {
+   var me;
     
     if(property.pid) {
       me = Jubo.Things.properties.findOne({'pid': property.pid});
@@ -281,6 +311,12 @@ Meteor.methods({
 
     me.value = property.value;
     //evolve(me); 
+}
+
+Meteor.methods({
+  adjust: function(property) {
+    adjustProperty(property);
+    Jubolin.call('adjustProperty',property);
   },
 
   feedback: function(err,property) {
