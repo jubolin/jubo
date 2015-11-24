@@ -23,6 +23,11 @@ Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
     added: function(id,device) {
       device.tid = id;
       console.log("jubolin add device:",device);
+      if(Jubo.Things.Device.find({'tid': id}).count() === 0) {
+        // Download device's connector
+        // Config device 
+      }
+
       addDevice(device);
     },
 
