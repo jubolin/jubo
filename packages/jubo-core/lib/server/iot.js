@@ -7,43 +7,44 @@ Meteor.startup(function () {
 
 });
 
-var  Jubolin = DDP.connect("http://localhost:3000");
-  console.log("Jubolin satus:",Jubolin.status());
-  if(Jubolin.status().connected) {
-    console.log('settings:',Meteor.settings);
-    Jubolin.call('whoami',{
-      'uuid': Meteor.settings.uuid,
-      'token': Meteor.settings.token
-    });
-    Jubolin.subscribe('jubolin_iot_things',Meteor.settings.uuid);
-  } else {
-    Jubolin.reconnect();
-}
-
-
-var Things = new Mongo.Collection('jubolin_iot_things');
-var Properties = new Mongo.Collection('jubolin_iot_things_properties');
-
-Things.find({'gateway': Meteor.settings.uuid}).observeChanges({
-  added: function(id,device) {
-    device.tid = id;
-    addDevice(device);
-  },
-
-  removed: function(id) {
-    Jubo.Things.devices.remove({'tid': id});
-    Jubo.Things.properties.remove({'tid': id});
-  }
+var Jubolin = DDP.connect('http://localhost:3000');
+console.log("Jubolin satus:",Jubolin.status());
+Jubolin.call('whoami',{
+  'uuid': Meteor.settings.uuid,
+  'token': Meteor.settings.token
 });
 
-Properties.find({'gateway': Meteor.settings.uuid}).observeChanges({
-  changed: function(id, fields) {
-    var property = {
-      'pid' : id,
-      'value': fields.value
-    };
-    adjustProperty(property);
-  }
+var Things = new Mongo.Collection('jubolin_iot_things', {connection: Jubolin});
+var Properties = new Mongo.Collection('jubolin_iot_things_properties', {connection: Jubolin});
+
+Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
+  console.log('subdevice count: ',Things.find().count());
+  Things.find({'gateway': Meteor.settings.uuid}).observeChanges({
+    added: function(id,device) {
+      device.tid = id;
+      console.log("jubolin add device:",device);
+      addDevice(device);
+    },
+
+    removed: function(id) {
+      console.log("jubolin remove device:",id);
+      Jubo.Things.devices.remove({'tid': id});
+      Jubo.Things.properties.remove({'tid': id});
+    }
+  });
+});
+
+Jubolin.subscribe('group_properties', {'gateway': Meteor.settings.uuid}, function() {
+  Properties.find({'gateway': Meteor.settings.uuid}).observeChanges({
+    changed: function(id, fields) {
+      var property = {
+        'pid' : id,
+        'value': fields.value
+      };
+      console.log('adjust property: ', id, fields);
+      adjustProperty(property);
+    }
+  });
 });
 
 
