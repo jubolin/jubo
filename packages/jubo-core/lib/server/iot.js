@@ -3,10 +3,6 @@
  * @summary The namespace for all Jubo.related methods and classes.
  */
 
-Meteor.startup(function () {
-
-});
-
 var Jubolin = DDP.connect('http://localhost:3000');
 console.log("Jubolin satus:",Jubolin.status());
 Jubolin.call('whoami',{
@@ -19,22 +15,25 @@ var Properties = new Mongo.Collection('jubolin_iot_things_properties', {connecti
 
 Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
   console.log('subdevice count: ',Things.find().count());
-  Things.find({'gateway': Meteor.settings.uuid}).observeChanges({
-    added: function(id,device) {
-      device.tid = id;
+  Things.find({'gateway': Meteor.settings.uuid}).observe({
+    added: function(device) {
       console.log("jubolin add device:",device);
-      if(Jubo.Things.Device.find({'tid': id}).count() === 0) {
+      if(Jubo.Things.devices.find({'tid': device.tid}).count() === 0) {
+        Jubolin.call('updateThingStatus', device.tid, 'updating');
         // Download device's connector
         // Config device 
       }
 
+      Jubolin.call('updateThingStatus', device.tid, 'loading', Meteor.settings.token);
+      device.status = 'offline';
       addDevice(device);
+      Jubolin.call('updateThingStatus', device.tid, 'offline', Meteor.settings.token);
     },
 
-    removed: function(id) {
-      console.log("jubolin remove device:",id);
-      Jubo.Things.devices.remove({'tid': id});
-      Jubo.Things.properties.remove({'tid': id});
+    removed: function(device) {
+      console.log("jubolin remove device:",device);
+      Jubo.Things.devices.remove({'tid': device.tid});
+      Jubo.Things.properties.remove({'tid': device.tid});
     }
   });
 });
@@ -77,7 +76,6 @@ Jubo.Logger = Winston;
 
 Meteor.publish("Jubo_things_devices",function(){
   return Jubo.Things.devices.find();
-  //juthings.find();
 });
 
 Meteor.publish("Jubo_things_properties",function(){
@@ -254,9 +252,8 @@ var evolve = function(me) {
 var addDevice = function(device) {
   var dev = {
       tid: device.tid,
-      about: device.about,
       controller: device.controller,
-      iconUrl: device.iconUrl,
+      logoURL: device.logoURL,
       status : device.status,
       statusColor: '#cccccc',
     };
