@@ -1,30 +1,32 @@
 var Connector = function() {
   var self = this;
   
-  self.connect = DDP.connect('http://localhost:4000');
+  //self.connect = DDP.connect('http://localhost:4000');
 }
 
 _.extend(Connector.prototype, {
   subscribe: function(name, callback) {
     var self = this;
 
-    self.connect.subscribe('jubo_thing_' + self.devid, function() {
-      Jubo.Things.properties.find(
-        {'tid': self.devid, 'property': name},
-        {fields: {'value': 1}}
-      ).observeChanges({
-        changed: function(id, value) {
-          callback(value);
-        }
-      });
+    Jubo.Things.properties.find(
+      {'tid': self.devid, 'name': name},
+      {fields: {'value': 1}}
+    ).observeChanges({
+      changed: function(id, value) {
+        callback(value);
+      }
     });
   },
 
   adjust: function(name,value) {
     var self = this;
 
-    self.connect.call('adjust', 
-      {'tid': self.devid, 'property': name, 'value': value});
+    Jubo.Things.properties.update(
+      {'tid': self.devid, 'name': name},
+      {$set:{'value': value,'timestamp': new Date().getTime()}}
+    );
+
+    Jubolin.call('adjustProperty',{'tid': self.devid, 'name': name, 'value': value});
   },
 
   status: function() {

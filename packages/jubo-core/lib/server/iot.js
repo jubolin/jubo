@@ -14,9 +14,11 @@ var Properties = new Mongo.Collection(
   {connection: Jubolin});
 
 var publishProperties = function (devid) {
+  console.log('publish properties jubo_thing_'+devid);
   Meteor.publish('jubo_thing_' + devid, function(tid) {
     var self = this;
 
+    console.log('find '+tid+' properties and publish');
     var handler = Jubo.Things.properties.find(
       {'tid':tid},
       {fields: {'label': 0}}
@@ -40,7 +42,7 @@ Jubolin.call('whoami',{
 });
 
 Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
-  Things.find({'gateway': Meteor.settings.uuid}).observe({
+  var handle = Things.find({'gateway': Meteor.settings.uuid}).observe({
     added: function(device) {
       if(Jubo.Things.devices.find({'tid': device.tid}).count() === 0) {
         Jubolin.call('updateThingStatus', device.tid, 'updating');
@@ -48,10 +50,11 @@ Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
         // Config device 
         Jubolin.call('updateThingStatus', device.tid, 'loading', Meteor.settings.token);
         device.status = 'offline';
-        addDevice(device);
+        Jubo.Things.devices.insert(device);
+        //addDevice(device);
         Jubolin.call('updateThingStatus', device.tid, 'offline', Meteor.settings.token);
       } else {
-        publishProperties(device.tid);
+        //publishProperties(device.tid);
       }
 
     },
@@ -139,7 +142,6 @@ var addDevice = function(device) {
     }
 
     _.each(device.properties,function(property) {
-      property.pid = Jubo.uuid();
       property.tid = thing.tid;
       property.timestamp = new Date().getTime();
       property.role = 'newcomer';
@@ -153,28 +155,17 @@ var addDevice = function(device) {
       });
     });
   });
-
-  publishProperties(dev.tid);
 }
 
 var adjustProperty = function(property) {
   var me;
   var now = new Date().getTime();
     
-  if(property.pid) {
-    me = Jubo.Things.properties.findOne({'pid': property.pid});
-    property.tid = me.tid;
-    property.service = me.service;
-    property.property = me.property;
-  }
-  else {
-    me = Jubo.Things.properties.findOne({
-      'tid': property.tid,
-      'property': property.property
-    });
+  me = Jubo.Things.properties.findOne({
+    'tid': property.tid,
+    'name': property.name
+  });
 
-    property.pid = me.pid;
-  }
 
   if(me.value === property.value)
     return;
