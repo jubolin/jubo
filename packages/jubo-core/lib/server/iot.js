@@ -3,6 +3,11 @@
  * @summary The namespace for all Jubo.related methods and classes.
  */
 
+Meteor.startup(function() {
+  execFile = Meteor.wrapAsync(Npm.require('child_process').execFile);
+  spawn = Npm.require('child_process').spawn;
+});
+
 Jubolin = DDP.connect('http://localhost:3000');
 
 var Things = new Mongo.Collection(
@@ -45,18 +50,29 @@ Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
   var handle = Things.find({'gateway': Meteor.settings.uuid}).observe({
     added: function(device) {
       if(Jubo.Things.devices.find({'tid': device.tid}).count() === 0) {
-        Jubolin.call('updateThingStatus', device.tid, 'updating');
-        // Download device's connector
-        // Config device 
-        Jubolin.call('updateThingStatus', device.tid, 'loading', Meteor.settings.token);
-        device.status = 'offline';
-        Jubo.Things.devices.insert(device);
-        //addDevice(device);
-        Jubolin.call('updateThingStatus', device.tid, 'offline', Meteor.settings.token);
-      } else {
-        //publishProperties(device.tid);
+        var cmdfile = process.env.JUBO_PATH + '/jubo.sh';
+        if(device.status === 'registering') {
+          execFile(
+            cmdfile, 
+            ['install', device.repository],
+            function(error, stdout, stderr) {
+              if(error) {
+                console.log('install device error',error);
+              } else {
+                Jubolin.call('updateThingStatus', device.tid, 'updating', Meteor.settings.token);
+                execFile(cmdfile, ['update']);
+              }
+            }
+          );
+        } else if(device.status === 'updating') {
+          Jubolin.call('updateThingStatus', device.tid, 'loading', Meteor.settings.token);
+          execFile(cmdfile, ['load', device.name]);
+        } else if(device.status === 'loading') {
+          device.status = 'offline';
+          Jubo.Things.devices.insert(device);
+          Jubolin.call('updateThingStatus', device.tid, 'offline', Meteor.settings.token);
+        }
       }
-
     },
 
     removed: function(device) {
