@@ -1,0 +1,4 @@
+.packages/
+packages/
+!packages/jubo-core/
+!packages/jubo-lib/

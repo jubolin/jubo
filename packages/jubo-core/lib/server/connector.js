@@ -4,16 +4,50 @@ var Connector = function() {
   //self.connect = DDP.connect('http://localhost:4000');
 }
 
+var register = function(thingID, sn) {
+  var devid = undefined;
+  var dev = Jubo.Things.devices.findOne(
+    {'thingID': thingID,'SN': sn},
+    {fields: {tid: 1}}
+  );
+
+  if(dev) {
+    devid = dev.tid;
+    Jubo.Things.devices.update(
+      {_id: dev._id},
+      {$set: {'status': 'online'}}
+    );
+  } else {
+    var dev = Jubo.Things.devices.findOne(
+      {'thingID': thingID, status: 'offline'}, 
+      {fields: {tid: 1}});
+
+    if(dev) {
+      devid = dev.tid;
+      Jubo.Things.devices.update(
+        {'tid': dev.tid}, 
+        {$set: {'SN': sn, 'status': 'online'}}
+      );
+
+      Jubolin.call('updateThingStatus', dev.tid, 'online', Meteor.settings.token);
+    }
+  }
+
+  return devid;
+}
+
 _.extend(Connector.prototype, {
   subscribe: function(name, callback) {
     var self = this;
 
+    console.log('subscribe',self.devid,name);
     Jubo.Things.properties.find(
       {'tid': self.devid, 'name': name},
-      {fields: {'value': 1}}
+      {fields: {'value': 1,'parameters': 1, 'timestamp': 1}}
     ).observeChanges({
-      changed: function(id, value) {
-        callback(value);
+      changed: function(id, fields) {
+        console.log('property',id,':',fields,'changed');
+        callback(fields);
       }
     });
   },
@@ -34,44 +68,25 @@ _.extend(Connector.prototype, {
     return self.connect.status();
   },
 
-  whoami: function(thingID, sn,callback) {
+  whoami: function(thingID, sn, cb) {
+    var retry = 0;
     var self = this;
-    var dev = Jubo.Things.devices.findOne(
-      {'thingID': thingID,'SN': sn},
-      {fields: {tid: 1}}
-    );
-
-    if(dev) {
-      self.devid = dev.tid;
-      Jubo.Things.devices.update(
-        {_id: dev._id}, 
-        {$set: {'status': 'online'}}
-      );
-
-      callback();
-    } else {
-      var dev = Jubo.Things.devices.findOne(
-        {'thingID': thingID, status: 'offline'}, 
-        {fields: {tid: 1}});
-
-      if(dev) {
-        self.devid = dev.tid;
-        Jubo.Things.devices.update(
-          {'tid': dev.tid}, 
-          {$set: {'SN': sn, 'status': 'online'}},
-          function(error) {
-            if(error) {
-              console.log(error);
-            }
-          }
-        );
-
-        Jubolin.call('updateThingStatus', dev.tid, 'online', Meteor.settings.token);
-        callback();
-      } else {
-        callback('not find device');
+    var handle = Meteor.setInterval(function() {
+      self.devid = register(thingID,sn);
+      if(self.devid || retry > 10) {
+        Meteor.clearInterval(handle);
+        if(retry > 10) {
+          var error = 'Device ' + thingID + '[' + sn + ']' + 'register failed'; 
+          console.log(error);
+          cb && cb(error);
+        } else {
+          console.log('Device',thingID,sn,'register successed');
+          cb && cb(undefined,self.devid);
+        }
       }
-    }
+      
+      retry++;
+    },500);
   }
 });
 

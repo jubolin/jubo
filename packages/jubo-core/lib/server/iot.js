@@ -50,6 +50,7 @@ Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
   var handle = Things.find({'gateway': Meteor.settings.uuid}).observe({
     added: function(device) {
       if(Jubo.Things.devices.find({'tid': device.tid}).count() === 0) {
+        console.log('install device: ',device);
         var cmdfile = process.env.JUBO_PATH + '/jubo.sh';
         if(device.status === 'registering') {
           execFile(
@@ -66,7 +67,7 @@ Jubolin.subscribe('group', {'gateway': Meteor.settings.uuid}, function() {
           );
         } else if(device.status === 'updating') {
           Jubolin.call('updateThingStatus', device.tid, 'loading', Meteor.settings.token);
-          execFile(cmdfile, ['load', device.name]);
+          execFile(cmdfile, ['load', device.connector]);
         } else if(device.status === 'loading') {
           device.status = 'offline';
           Jubo.Things.devices.insert(device);
@@ -94,15 +95,10 @@ Jubolin.subscribe('group_properties', {'gateway': Meteor.settings.uuid}, functio
     },
 
     changed: function(id, fields) {
-      var property = {
-        _id : id,
-        'value': fields.value
-      };
-
       console.log('changed property ', id, fields);
       Jubo.Things.properties.update(
         {'_id':id},
-        {$set:{'value': property.value}});
+        {$set:fields});
     },
 
     removed: function(id) {
