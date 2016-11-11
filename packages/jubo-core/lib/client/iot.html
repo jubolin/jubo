@@ -13,8 +13,8 @@
         {{#each things}}
           <div class="col-xs-3 col-sm-2 col-md-1">
             <a href="/thing/{{tid}}">
-              <img src="images/devices/{{icon}}" style="background-color: {{statusColor}};">
-              <h4>{{about.name}}</h4>
+              <img src="{{logoURL}}" style="background-color: {{statusColor}};">
+              <h4>{{alias}}</h4>
             </a>
           </div>
         {{/each}}
@@ -45,13 +45,13 @@
           <div id="controls">
             <div id="deviceIcon">
               <img class="actor-big" style="background-color:{{thing.statusColor}};" 
-                src="images/devices/{{thing.icon}}">
+              src="{{logoURL}}">
             </div>
             <div id="toPopover">
               <span class="actor-name" style="color:{{thing.statusColor}};">
-                {{thing.about.name}}<br/>{{thing.about.location}}
+                {{thing.alias}}<br/>{{thing.location}}
               </span>
-              {{> juboDevicePopover}}
+              {{> juboThingPopover}}
             </div>
           </div>
         </div>

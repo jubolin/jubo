@@ -1,16 +1,17 @@
-Meteor.subscribe("jubo_things_devices");
-Meteor.subscribe("jubo_things_properties");
+Meteor.subscribe("Jubo_things_devices");
+Meteor.subscribe("Jubo_things_properties");
 
 Template.juboThingNav.helpers({
   things: function() {
     //return juthings.find();
-    return Jubo.Things.entities.find();
+    return Jubo.Things.devices.find();
   }
 });
 
 Template.juboThing.helpers({
   thing: function() {
-    return Jubo.Things.entities.findOne({"tid":Session.get('juboThingID')});
+    console.log('device: ',Jubo.Things.devices.findOne({"tid":Session.get('juboThingID')}));
+    return Jubo.Things.devices.findOne({"tid":Session.get('juboThingID')});
   }
 });
 
@@ -50,7 +51,7 @@ Template.juboThing.rendered = function() {
 
   arcs = [];
   tid = Session.get('juboThingID');
-  thing = Jubo.Things.entities.findOne({'tid':tid});
+  thing = Jubo.Things.devices.findOne({'tid':tid});
 
   if(thing.status === 'off') 
     return;

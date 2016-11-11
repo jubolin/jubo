@@ -3,12 +3,15 @@ Router.route('/',function() {
 });
 
 Router.route('/thing/:tid',function(){
-  var thing = juthings.findOne({"tid":this.params.tid});
+  var thing = Jubo.Things.devices.findOne({"tid":this.params.tid});
+  console.log('thing:', thing);
   Session.set('juboThingID',this.params.tid);
-  if(thing.controller !== "default")
+  this.render('juboThing');
+  /*if(thing.controller !== "default")
     this.render(thing.controller);
   else
     this.render('juboThing');
+  */
 });
 
 

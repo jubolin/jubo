@@ -15,7 +15,8 @@ Package.onUse(function (api) {
   api.imply(packages);
 
   api.addFiles([
-    'lib/server/iot.js'
+    'lib/server/iot.js',
+    'lib/server/connector.js'
   ], ['server']);
 
   api.addFiles([
